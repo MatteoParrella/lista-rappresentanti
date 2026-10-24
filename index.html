@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Capolista – Richieste</title>
+  <meta name="description" content="Fai una richiesta ai rappresentanti d'istituto di Villa Greppi – lista Capolista.">
+  <meta name="theme-color" content="#13307a">
+  <link rel="icon" href="assets/villa.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Oswald:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <header class="wrap hero">
+    <img class="villa" src="assets/villa.svg" alt="Villa Greppi">
+    <div class="divisore"></div>
+    <div class="marchio">
+      <h1>CAPOLISTA</h1>
+      <div class="linea"></div>
+      <div class="sotto">Rappresentanti d'istituto</div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <p class="motto">🚀 In testa per il vostro futuro. Scrivici: leggiamo tutto.</p>
+
+    <section class="card">
+      <h2>Fai una richiesta</h2>
+      <p class="desc">Proposte, problemi, idee per eventi o qualsiasi cosa vuoi che portiamo avanti.</p>
+      <div class="anonimo">
+        <span class="icona">🔒</span>
+        <div><b>Le richieste sono anonime.</b> Non chiediamo nome, classe o contatti e non salviamo chi le invia: noi leggiamo solo il testo. Evita di scrivere dati personali nel messaggio se vuoi restare anonimo.</div>
+      </div>
+
+      <form id="form-richiesta" novalidate>
+        <label for="categoria">Categoria</label>
+        <select id="categoria" name="categoria" required>
+          <option value="">Scegli…</option>
+          <option>Didattica</option>
+          <option>Strutture e spazi</option>
+          <option>Eventi e attività</option>
+          <option>Assemblee</option>
+          <option>Proposta</option>
+          <option>Segnalazione problema</option>
+          <option>Altro</option>
+        </select>
+
+        <label for="titolo">Oggetto</label>
+        <input type="text" id="titolo" name="titolo" maxlength="120" placeholder="Es. Distributori rotti al secondo piano" required>
+
+        <label for="messaggio">Messaggio</label>
+        <textarea id="messaggio" name="messaggio" maxlength="3000" placeholder="Spiegaci tutto nel dettaglio…" required></textarea>
+
+        <!-- campo trappola per i bot: gli umani non lo vedono -->
+        <div class="hp" aria-hidden="true">
+          <label for="sito">Lascia vuoto</label>
+          <input type="text" id="sito" name="sito" tabindex="-1" autocomplete="off">
+        </div>
+
+        <button class="btn" type="submit" id="invia">Invia richiesta</button>
+        <div class="messaggio" id="esito" role="status"></div>
+      </form>
+    </section>
+
+  </main>
+
+  <footer class="wrap">
+    Seguici su Instagram: <a href="https://www.instagram.com/capolista_vg/" target="_blank" rel="noopener">@capolista_vg</a>
+  </footer>
+
+  <script src="js/config.js"></script>
+  <script src="js/api.js"></script>
+  <script>
+    const { chiama, escape } = window.Capolista;
+
+    const form = document.getElementById("form-richiesta");
+    const esito = document.getElementById("esito");
+    function mostra(el, tipo, html) {
+      el.className = "messaggio " + tipo;
+      el.innerHTML = html;
+    }
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const dati = {
+        categoria: form.categoria.value,
+        titolo: form.titolo.value.trim(),
+        messaggio: form.messaggio.value.trim(),
+        sito: form.sito.value
+      };
+      if (!dati.categoria || !dati.titolo || !dati.messaggio) {
+        mostra(esito, "errore", "Compila categoria, oggetto e messaggio.");
+        return;
+      }
+      const bottone = document.getElementById("invia");
+      bottone.disabled = true;
+      bottone.textContent = "Invio…";
+      try {
+        const r = await chiama("invia", dati);
+        if (!r.ok) throw new Error(r.errore || "Errore sconosciuto");
+        form.reset();
+        mostra(esito, "ok",
+          "<b>Richiesta inviata, grazie!</b><br>L'abbiamo ricevuta in forma anonima. Puoi inviarne quante vuoi.");
+      } catch (err) {
+        mostra(esito, "errore", "Invio non riuscito: " + escape(err.message) + ". Riprova tra poco.");
+      } finally {
+        bottone.disabled = false;
+        bottone.textContent = "Invia richiesta";
+      }
+    });
+
+  </script>
+</body>
+</html>
