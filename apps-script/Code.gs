@@ -3,14 +3,14 @@
  * Istruzioni di installazione nel README.md del repository.
  *
  * Proprietà dello script (Impostazioni progetto → Proprietà script):
- *   ADMIN_PASSWORD  password dell'area rappresentanti (obbligatoria)
+ *   ADMIN_PASSWORD  password dell'area membri (obbligatoria)
  */
 
 const FOGLIO = 'Richieste';
 // Nessuna colonna identifica chi scrive: le richieste sono anonime.
-const COLONNE = ['id', 'data', 'categoria', 'titolo', 'messaggio', 'stato', 'risposta'];
-const STATI = ['nuova', 'in-lavorazione', 'risolta', 'respinta'];
-const LIMITI = { categoria: 40, titolo: 120, messaggio: 3000, risposta: 3000 };
+// L'id serve solo ai membri per eliminare spam o messaggi offensivi.
+const COLONNE = ['id', 'data', 'categoria', 'titolo', 'messaggio'];
+const LIMITI = { categoria: 40, titolo: 120, messaggio: 3000 };
 
 function doPost(e) {
   let esito;
@@ -18,9 +18,8 @@ function doPost(e) {
     const dati = JSON.parse(e.postData.contents);
     switch (dati.azione) {
       case 'invia': esito = invia(dati); break;
-      case 'stato': esito = stato(dati); break;
       case 'lista': controllaPassword(dati); esito = lista(); break;
-      case 'aggiorna': controllaPassword(dati); esito = aggiorna(dati); break;
+      case 'elimina': controllaPassword(dati); esito = elimina(dati); break;
       default: esito = { ok: false, errore: 'Azione sconosciuta.' };
     }
   } catch (err) {
@@ -65,12 +64,12 @@ function controllaPassword(dati) {
 function nuovoCodice() {
   const caratteri = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
   let c = '';
-  for (let i = 0; i < 6; i++) c += caratteri.charAt(Math.floor(Math.random() * caratteri.length));
+  for (let i = 0; i < 8; i++) c += caratteri.charAt(Math.floor(Math.random() * caratteri.length));
   return c;
 }
 
 function invia(dati) {
-  if (dati.sito) return { ok: true, id: nuovoCodice() }; // bot: finge successo, non salva
+  if (dati.sito) return { ok: true }; // bot: finge successo, non salva
   const r = {};
   ['categoria', 'titolo', 'messaggio'].forEach(function (k) {
     r[k] = pulisci(dati[k], LIMITI[k]);
@@ -80,12 +79,8 @@ function invia(dati) {
   const lock = LockService.getScriptLock();
   lock.waitLock(10000);
   try {
-    const sh = foglio();
-    const esistenti = new Set(sh.getRange(1, 1, sh.getLastRow(), 1).getValues().map(function (x) { return x[0]; }));
-    let id;
-    do { id = nuovoCodice(); } while (esistenti.has(id));
-    sh.appendRow([id, new Date(), r.categoria, r.titolo, r.messaggio, 'nuova', '']);
-    return { ok: true, id: id };
+    foglio().appendRow([nuovoCodice(), new Date(), r.categoria, r.titolo, r.messaggio]);
+    return { ok: true };
   } finally {
     lock.releaseLock();
   }
@@ -104,27 +99,18 @@ function righe() {
   });
 }
 
-function stato(dati) {
-  const id = String(dati.id || '').trim().toUpperCase();
-  const r = righe().find(function (x) { return x.id === id; });
-  if (!r) return { ok: false, errore: 'Codice non trovato.' };
-  return { ok: true, richiesta: { id: r.id, titolo: r.titolo, data: r.data, stato: r.stato, risposta: r.risposta } };
-}
-
 function lista() {
   const tutte = righe().reverse().map(function (r) { delete r.riga; return r; });
   return { ok: true, richieste: tutte };
 }
 
-function aggiorna(dati) {
-  if (STATI.indexOf(dati.stato) < 0) throw new Error('Stato non valido.');
+function elimina(dati) {
   const lock = LockService.getScriptLock();
   lock.waitLock(10000);
   try {
     const r = righe().find(function (x) { return x.id === dati.id; });
     if (!r) throw new Error('Richiesta non trovata.');
-    const col = COLONNE.indexOf('stato') + 1;
-    foglio().getRange(r.riga, col, 1, 2).setValues([[dati.stato, pulisci(dati.risposta, LIMITI.risposta)]]);
+    foglio().deleteRow(r.riga);
     return { ok: true };
   } finally {
     lock.releaseLock();

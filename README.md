@@ -1,9 +1,9 @@
 # Capolista – Sito richieste
 
-Sito della lista **Capolista** (rappresentanti d'istituto, Villa Greppi) dove gli studenti inviano richieste **anonime** e i membri della lista le leggono e rispondono.
+Sito della lista **Capolista** (rappresentanti d'istituto, Villa Greppi) dove gli studenti inviano richieste **anonime** e i membri della lista vedono cosa chiede la scuola.
 
-- `index.html` → **link per gli studenti** (`https://<progetto>.vercel.app/`) – pagina per gli studenti: modulo richiesta anonimo (niente nome, classe o contatti) + controllo dello stato con un codice.
-- `admin.html` → **link per i membri** (`https://<progetto>.vercel.app/membri`) – area protetta da password: elenco, filtri, cambio stato, risposta allo studente.
+- `index.html` → **link per gli studenti** (`https://<progetto>.vercel.app/`) – pagina per gli studenti: modulo richiesta anonimo (niente nome, classe o contatti).
+- `admin.html` → **link per i membri** (`https://<progetto>.vercel.app/membri`) – area protetta da password: classifica delle categorie più richieste, elenco, filtri, ricerca.
 - `apps-script/Code.gs` – backend gratuito su Google Apps Script; le richieste finiscono in un Google Sheet.
 
 Costo: **0 €**. Sito su Vercel, dati su Google Sheets.
@@ -57,8 +57,8 @@ Ogni push sul branch principale aggiorna il sito da solo. Il routing è in `verc
 ## Come la usano i membri
 
 - Vanno su `/membri`, inseriscono la password e vedono tutte le richieste.
-- Possono filtrarle, cambiare lo stato (Nuova / In lavorazione / Risolta / Non accolta) e scrivere una risposta.
-- Lo studente, con il codice ricevuto dopo l'invio, vede stato e risposta dalla home.
+- In alto vedono i numeri (totale, ultime 24 ore, ultimi 7 giorni) e la classifica delle categorie più richieste.
+- Possono filtrare per categoria, cercare per parola ed eliminare spam o messaggi offensivi.
 - Tutte le richieste sono anche nel Google Sheet, comodo per esportarle o stamparle.
 
 ## Note

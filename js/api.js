@@ -24,36 +24,23 @@
     const lista = leggiDemo();
     switch (azione) {
       case "invia": {
-        const r = {
-          categoria: dati.categoria,
-          titolo: dati.titolo,
-          messaggio: dati.messaggio,
+        lista.push({
           id: nuovoCodice(),
           data: new Date().toISOString(),
-          stato: "nuova",
-          risposta: ""
-        };
-        lista.push(r);
+          categoria: dati.categoria,
+          titolo: dati.titolo,
+          messaggio: dati.messaggio
+        });
         scriviDemo(lista);
-        return { ok: true, id: r.id };
-      }
-      case "stato": {
-        const r = lista.find((x) => x.id === String(dati.id).toUpperCase());
-        if (!r) return { ok: false, errore: "Codice non trovato." };
-        return { ok: true, richiesta: { id: r.id, titolo: r.titolo, data: r.data, stato: r.stato, risposta: r.risposta } };
+        return { ok: true };
       }
       case "lista":
         if (dati.password !== DEMO_PASSWORD) return { ok: false, errore: "Password errata." };
         return { ok: true, richieste: lista.slice().reverse() };
-      case "aggiorna": {
+      case "elimina":
         if (dati.password !== DEMO_PASSWORD) return { ok: false, errore: "Password errata." };
-        const r = lista.find((x) => x.id === dati.id);
-        if (!r) return { ok: false, errore: "Richiesta non trovata." };
-        r.stato = dati.stato;
-        r.risposta = dati.risposta;
-        scriviDemo(lista);
+        scriviDemo(lista.filter((x) => x.id !== dati.id));
         return { ok: true };
-      }
     }
     return { ok: false, errore: "Azione sconosciuta." };
   }
@@ -83,14 +70,8 @@
     return d.toLocaleString("it-IT", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" });
   }
 
-  const ETICHETTE_STATO = {
-    "nuova": "Nuova",
-    "in-lavorazione": "In lavorazione",
-    "risolta": "Risolta",
-    "respinta": "Non accolta"
-  };
 
-  window.Capolista = { chiama, escape, formattaData, DEMO, ETICHETTE_STATO };
+  window.Capolista = { chiama, escape, formattaData, DEMO };
 
   if (DEMO) {
     document.addEventListener("DOMContentLoaded", function () {
