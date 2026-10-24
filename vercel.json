@@ -1,15 +1,12 @@
 {
-  "cleanUrls": true,
   "trailingSlash": false,
-  "rewrites": [
-    { "source": "/membri", "destination": "/admin.html" }
-  ],
   "redirects": [
-    { "source": "/admin", "destination": "/membri", "permanent": true }
+    { "source": "/admin", "destination": "/membri", "permanent": true },
+    { "source": "/admin.html", "destination": "/membri", "permanent": true }
   ],
   "headers": [
     {
-      "source": "/membri",
+      "source": "/membri(.*)",
       "headers": [{ "key": "X-Robots-Tag", "value": "noindex" }]
     }
   ]
