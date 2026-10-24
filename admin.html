@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Capolista – Area rappresentanti</title>
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#13307a">
+  <link rel="icon" href="assets/villa.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Oswald:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <header class="wrap hero">
+    <img class="villa" src="assets/villa.svg" alt="Villa Greppi">
+    <div class="divisore"></div>
+    <div class="marchio">
+      <h1>CAPOLISTA</h1>
+      <div class="tricolore"><span></span><span></span><span></span></div>
+      <div class="sotto">Area rappresentanti</div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="card" id="login">
+      <h2>Accedi</h2>
+      <p class="desc">Riservato ai rappresentanti della lista.</p>
+      <form id="form-login">
+        <label for="password">Password</label>
+        <input type="password" id="password" autocomplete="current-password" required>
+        <button class="btn" type="submit">Entra</button>
+        <div class="messaggio" id="esito-login" role="status"></div>
+      </form>
+    </section>
+
+    <section id="pannello" hidden>
+      <div class="stats" id="stats"></div>
+      <div class="toolbar">
+        <select id="filtro-stato">
+          <option value="">Tutti gli stati</option>
+          <option value="nuova">Nuove</option>
+          <option value="in-lavorazione">In lavorazione</option>
+          <option value="risolta">Risolte</option>
+          <option value="respinta">Non accolte</option>
+        </select>
+        <select id="filtro-categoria"><option value="">Tutte le categorie</option></select>
+        <input type="text" id="cerca" placeholder="Cerca…">
+        <button class="btn piccolo secondario" id="aggiorna">↻ Aggiorna</button>
+        <button class="btn piccolo secondario" id="esci">Esci</button>
+      </div>
+      <div id="lista"></div>
+    </section>
+  </main>
+
+  <footer class="wrap"><a href="index.html">← Torna al sito</a></footer>
+
+  <script src="js/config.js"></script>
+  <script src="js/api.js"></script>
+  <script>
+    const { chiama, escape, formattaData, ETICHETTE_STATO, DEMO } = window.Capolista;
+    const CHIAVE_PW = "capolista_admin_pw";
+    let password = "";
+    let richieste = [];
+
+    const $ = (id) => document.getElementById(id);
+
+    function leggiPw() { try { return sessionStorage.getItem(CHIAVE_PW) || ""; } catch (e) { return ""; } }
+    function salvaPw(p) { try { p ? sessionStorage.setItem(CHIAVE_PW, p) : sessionStorage.removeItem(CHIAVE_PW); } catch (e) {} }
+
+    if (DEMO) $("esito-login").outerHTML += '<p class="desc">In modalità demo la password è <b>demo</b>.</p>';
+
+    async function carica() {
+      const r = await chiama("lista", { password });
+      if (!r.ok) throw new Error(r.errore);
+      richieste = r.richieste;
+      const categorie = [...new Set(richieste.map((x) => x.categoria).filter(Boolean))].sort();
+      const sel = $("filtro-categoria");
+      const attuale = sel.value;
+      sel.innerHTML = '<option value="">Tutte le categorie</option>' +
+        categorie.map((c) => "<option>" + escape(c) + "</option>").join("");
+      sel.value = attuale;
+      disegna();
+    }
+
+    function disegna() {
+      const conta = (s) => richieste.filter((x) => x.stato === s).length;
+      $("stats").innerHTML =
+        [["nuova", "Nuove"], ["in-lavorazione", "In corso"], ["risolta", "Risolte"], ["", "Totale"]]
+          .map(([s, etichetta]) => '<div class="stat"><b>' + (s ? conta(s) : richieste.length) + "</b><span>" + etichetta + "</span></div>")
+          .join("");
+
+      const fs = $("filtro-stato").value;
+      const fc = $("filtro-categoria").value;
+      const q = $("cerca").value.trim().toLowerCase();
+      const visibili = richieste.filter((x) =>
+        (!fs || x.stato === fs) &&
+        (!fc || x.categoria === fc) &&
+        (!q || [x.titolo, x.messaggio, x.nome, x.classe, x.id].join(" ").toLowerCase().includes(q)));
+
+      if (!visibili.length) {
+        $("lista").innerHTML = '<div class="card vuoto">Nessuna richiesta da mostrare.</div>';
+        return;
+      }
+
+      $("lista").innerHTML = visibili.map((x) => {
+        const chi = x.nome || x.classe
+          ? escape([x.nome, x.classe].filter(Boolean).join(" · "))
+          : "<i>Anonimo</i>";
+        const opzioni = Object.entries(ETICHETTE_STATO)
+          .map(([v, t]) => '<option value="' + v + '"' + (v === x.stato ? " selected" : "") + ">" + t + "</option>")
+          .join("");
+        return '<article class="card richiesta s-' + escape(x.stato) + '" data-id="' + escape(x.id) + '">' +
+          '<div class="testa"><h3>' + escape(x.titolo) + '</h3><span class="badge ' + escape(x.stato) + '">' +
+          escape(ETICHETTE_STATO[x.stato] || x.stato) + "</span></div>" +
+          '<div class="meta">#' + escape(x.id) + " · " + escape(x.categoria) + " · " + escape(formattaData(x.data)) +
+          " · " + chi + (x.contatto ? " · 📩 " + escape(x.contatto) : "") + "</div>" +
+          '<div class="corpo">' + escape(x.messaggio) + "</div>" +
+          '<div class="azioni">' +
+          '<select class="stato">' + opzioni + "</select>" +
+          '<textarea class="risposta" placeholder="Risposta visibile allo studente con il codice…">' + escape(x.risposta) + "</textarea>" +
+          '<button class="btn piccolo salva">Salva</button>' +
+          "</div></article>";
+      }).join("");
+    }
+
+    $("lista").addEventListener("click", async (e) => {
+      if (!e.target.classList.contains("salva")) return;
+      const card = e.target.closest(".richiesta");
+      const id = card.dataset.id;
+      const stato = card.querySelector(".stato").value;
+      const risposta = card.querySelector(".risposta").value.trim();
+      e.target.disabled = true;
+      e.target.textContent = "…";
+      try {
+        const r = await chiama("aggiorna", { password, id, stato, risposta });
+        if (!r.ok) throw new Error(r.errore);
+        const x = richieste.find((y) => y.id === id);
+        x.stato = stato;
+        x.risposta = risposta;
+        disegna();
+      } catch (err) {
+        alert("Salvataggio non riuscito: " + err.message);
+        e.target.disabled = false;
+        e.target.textContent = "Salva";
+      }
+    });
+
+    async function entra(p) {
+      password = p;
+      await carica();
+      salvaPw(p);
+      $("login").hidden = true;
+      $("pannello").hidden = false;
+    }
+
+    $("form-login").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const esito = $("esito-login");
+      try {
+        await entra($("password").value);
+      } catch (err) {
+        esito.className = "messaggio errore";
+        esito.textContent = err.message || "Accesso non riuscito.";
+      }
+    });
+
+    ["filtro-stato", "filtro-categoria"].forEach((id) => $(id).addEventListener("change", disegna));
+    $("cerca").addEventListener("input", disegna);
+    $("aggiorna").addEventListener("click", () => carica().catch((err) => alert(err.message)));
+    $("esci").addEventListener("click", () => { salvaPw(""); location.reload(); });
+
+    const salvata = leggiPw();
+    if (salvata) entra(salvata).catch(() => salvaPw(""));
+  </script>
+</body>
+</html>
