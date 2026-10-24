@@ -3,7 +3,7 @@
 Sito della lista **Capolista** (rappresentanti d'istituto, Villa Greppi) dove gli studenti inviano richieste **anonime** e i membri della lista vedono cosa chiede la scuola.
 
 - `index.html` → **link per gli studenti** (`https://<progetto>.vercel.app/`) – pagina per gli studenti: modulo richiesta anonimo (niente nome, classe o contatti).
-- `admin.html` → **link per i membri** (`https://<progetto>.vercel.app/membri`) – area protetta da password: classifica delle categorie più richieste, elenco, filtri, ricerca.
+- `membri/index.html` → **link per i membri** (`https://<progetto>.vercel.app/membri`) – area protetta da password: classifica delle categorie più richieste, elenco, filtri, ricerca.
 - `apps-script/Code.gs` – backend gratuito su Google Apps Script; le richieste finiscono in un Google Sheet.
 
 Costo: **0 €**. Sito su Vercel, dati su Google Sheets.
@@ -52,7 +52,7 @@ Avrete due link:
 | Studenti (da mettere in bio su Instagram) | `https://capolista.vercel.app` |
 | Membri della lista (da non condividere) | `https://capolista.vercel.app/membri` |
 
-Ogni push sul branch principale aggiorna il sito da solo. Il routing è in `vercel.json`.
+Ogni push sul branch principale aggiorna il sito da solo. La pagina membri è nella cartella `membri/`, quindi il link funziona senza configurazioni speciali.
 
 ## Come la usano i membri
 
@@ -65,4 +65,4 @@ Ogni push sul branch principale aggiorna il sito da solo. Il routing è in `verc
 
 - Se modificate `Code.gs`, serve **Esegui il deployment → Gestisci deployment → Modifica → Nuova versione** perché le modifiche vadano online (l'URL resta lo stesso).
 - Per cambiare la password basta modificare la proprietà `ADMIN_PASSWORD`.
-- Per usare il vostro logo vero al posto del disegno della villa, sostituite `assets/villa.svg` (o cambiate il `src` dell'immagine in `index.html` e `admin.html`).
+- Per usare il vostro logo vero al posto del disegno della villa, sostituite `assets/villa.svg` (o cambiate il `src` dell'immagine in `index.html` e `membri/index.html`).
