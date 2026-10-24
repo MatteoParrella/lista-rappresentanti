@@ -51,15 +51,12 @@ a { color: var(--bianco); }
   letter-spacing: 0.02em;
   line-height: 1;
 }
-.tricolore {
-  display: flex;
-  height: 6px;
+.linea {
+  height: 5px;
   margin: 10px 0 8px;
+  background: var(--bianco);
+  border-radius: 3px;
 }
-.tricolore span { flex: 1; }
-.tricolore span:nth-child(1) { background: var(--verde); }
-.tricolore span:nth-child(2) { background: var(--bianco); }
-.tricolore span:nth-child(3) { background: var(--rosso); }
 .marchio .sotto {
   font-family: "Oswald", sans-serif;
   font-size: 0.85rem;
@@ -72,7 +69,7 @@ a { color: var(--bianco); }
   .hero .divisore { display: none; }
   .hero .villa { width: 130px; }
   .marchio { align-items: center; text-align: center; }
-  .marchio .tricolore { width: 100%; }
+  .marchio .linea { width: 100%; }
 }
 
 .motto {
@@ -104,7 +101,8 @@ a { color: var(--bianco); }
   width: 70px;
   height: 4px;
   margin-top: 8px;
-  background: linear-gradient(90deg, var(--verde) 0 33%, var(--bianco) 33% 66%, var(--rosso) 66%);
+  background: var(--bianco);
+  border-radius: 2px;
 }
 .card p.desc { color: var(--grigio); margin: 10px 0 18px; }
 
@@ -133,6 +131,19 @@ input:focus, select:focus, textarea:focus {
 
 .check { display: flex; align-items: center; gap: 10px; margin-top: 16px; font-weight: 500; }
 .check input { width: 18px; height: 18px; accent-color: var(--verde); }
+
+.anonimo {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px dashed var(--bordo);
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin-bottom: 6px;
+  font-size: 0.95rem;
+}
+.anonimo .icona { font-size: 1.4rem; line-height: 1; }
 
 .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
 

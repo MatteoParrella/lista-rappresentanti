@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Capolista – Area rappresentanti</title>
+  <title>Capolista – Area membri</title>
   <meta name="robots" content="noindex">
   <meta name="theme-color" content="#13307a">
   <link rel="icon" href="assets/villa.svg" type="image/svg+xml">
@@ -18,15 +18,15 @@
     <div class="divisore"></div>
     <div class="marchio">
       <h1>CAPOLISTA</h1>
-      <div class="tricolore"><span></span><span></span><span></span></div>
-      <div class="sotto">Area rappresentanti</div>
+      <div class="linea"></div>
+      <div class="sotto">Area membri</div>
     </div>
   </header>
 
   <main class="wrap">
     <section class="card" id="login">
       <h2>Accedi</h2>
-      <p class="desc">Riservato ai rappresentanti della lista.</p>
+      <p class="desc">Riservato ai membri della lista Capolista. Le richieste arrivano in forma anonima.</p>
       <form id="form-login">
         <label for="password">Password</label>
         <input type="password" id="password" autocomplete="current-password" required>
@@ -54,7 +54,7 @@
     </section>
   </main>
 
-  <footer class="wrap"><a href="index.html">← Torna al sito</a></footer>
+  <footer class="wrap"><a href="/">← Pagina richieste</a></footer>
 
   <script src="js/config.js"></script>
   <script src="js/api.js"></script>
@@ -97,7 +97,7 @@
       const visibili = richieste.filter((x) =>
         (!fs || x.stato === fs) &&
         (!fc || x.categoria === fc) &&
-        (!q || [x.titolo, x.messaggio, x.nome, x.classe, x.id].join(" ").toLowerCase().includes(q)));
+        (!q || [x.titolo, x.messaggio, x.id].join(" ").toLowerCase().includes(q)));
 
       if (!visibili.length) {
         $("lista").innerHTML = '<div class="card vuoto">Nessuna richiesta da mostrare.</div>';
@@ -105,9 +105,6 @@
       }
 
       $("lista").innerHTML = visibili.map((x) => {
-        const chi = x.nome || x.classe
-          ? escape([x.nome, x.classe].filter(Boolean).join(" · "))
-          : "<i>Anonimo</i>";
         const opzioni = Object.entries(ETICHETTE_STATO)
           .map(([v, t]) => '<option value="' + v + '"' + (v === x.stato ? " selected" : "") + ">" + t + "</option>")
           .join("");
@@ -115,7 +112,7 @@
           '<div class="testa"><h3>' + escape(x.titolo) + '</h3><span class="badge ' + escape(x.stato) + '">' +
           escape(ETICHETTE_STATO[x.stato] || x.stato) + "</span></div>" +
           '<div class="meta">#' + escape(x.id) + " · " + escape(x.categoria) + " · " + escape(formattaData(x.data)) +
-          " · " + chi + (x.contatto ? " · 📩 " + escape(x.contatto) : "") + "</div>" +
+          " · <i>Anonima</i></div>" +
           '<div class="corpo">' + escape(x.messaggio) + "</div>" +
           '<div class="azioni">' +
           '<select class="stato">' + opzioni + "</select>" +

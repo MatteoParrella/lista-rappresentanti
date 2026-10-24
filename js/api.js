@@ -24,12 +24,15 @@
     const lista = leggiDemo();
     switch (azione) {
       case "invia": {
-        const r = Object.assign({}, dati, {
+        const r = {
+          categoria: dati.categoria,
+          titolo: dati.titolo,
+          messaggio: dati.messaggio,
           id: nuovoCodice(),
           data: new Date().toISOString(),
           stato: "nuova",
           risposta: ""
-        });
+        };
         lista.push(r);
         scriviDemo(lista);
         return { ok: true, id: r.id };

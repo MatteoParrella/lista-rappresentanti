@@ -7,9 +7,10 @@
  */
 
 const FOGLIO = 'Richieste';
-const COLONNE = ['id', 'data', 'categoria', 'titolo', 'messaggio', 'nome', 'classe', 'contatto', 'stato', 'risposta'];
+// Nessuna colonna identifica chi scrive: le richieste sono anonime.
+const COLONNE = ['id', 'data', 'categoria', 'titolo', 'messaggio', 'stato', 'risposta'];
 const STATI = ['nuova', 'in-lavorazione', 'risolta', 'respinta'];
-const LIMITI = { categoria: 40, titolo: 120, messaggio: 3000, nome: 80, classe: 10, contatto: 120, risposta: 3000 };
+const LIMITI = { categoria: 40, titolo: 120, messaggio: 3000, risposta: 3000 };
 
 function doPost(e) {
   let esito;
@@ -71,7 +72,7 @@ function nuovoCodice() {
 function invia(dati) {
   if (dati.sito) return { ok: true, id: nuovoCodice() }; // bot: finge successo, non salva
   const r = {};
-  ['categoria', 'titolo', 'messaggio', 'nome', 'classe', 'contatto'].forEach(function (k) {
+  ['categoria', 'titolo', 'messaggio'].forEach(function (k) {
     r[k] = pulisci(dati[k], LIMITI[k]);
   });
   if (!r.categoria || !r.titolo || !r.messaggio) throw new Error('Compila categoria, oggetto e messaggio.');
@@ -83,7 +84,7 @@ function invia(dati) {
     const esistenti = new Set(sh.getRange(1, 1, sh.getLastRow(), 1).getValues().map(function (x) { return x[0]; }));
     let id;
     do { id = nuovoCodice(); } while (esistenti.has(id));
-    sh.appendRow([id, new Date(), r.categoria, r.titolo, r.messaggio, r.nome, r.classe, r.contatto, 'nuova', '']);
+    sh.appendRow([id, new Date(), r.categoria, r.titolo, r.messaggio, 'nuova', '']);
     return { ok: true, id: id };
   } finally {
     lock.releaseLock();
