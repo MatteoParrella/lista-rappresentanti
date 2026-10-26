@@ -54,8 +54,9 @@
   async function chiama(azione, dati) {
     dati = dati || {};
     if (DEMO) return demo(azione, dati);
+    // Gli invii passano da /api/invia (Vercel), che conosce l'IP per i limiti anti-spam.
     // Content-Type text/plain evita il preflight CORS, che Apps Script non gestisce.
-    const risposta = await fetch(API_URL, {
+    const risposta = await fetch(azione === "invia" ? "/api/invia" : API_URL, {
       method: "POST",
       headers: { "Content-Type": "text/plain;charset=utf-8" },
       body: JSON.stringify(Object.assign({ azione: azione }, dati))
