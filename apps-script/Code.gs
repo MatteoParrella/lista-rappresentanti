@@ -4,6 +4,10 @@
  *
  * Proprietà dello script (Impostazioni progetto → Proprietà script):
  *   ADMIN_PASSWORD  password dell'area membri (obbligatoria)
+ *   INVII_CHIUSI    scrivete "si" per chiudere subito gli invii (es. durante un attacco di spam)
+ *
+ * Per cancellare in blocco lo spam: scegliete la funzione cancellaSpamDiOggi in alto
+ * nell'editor e premete Esegui (vedi la funzione in fondo al file).
  */
 
 const FOGLIO = 'Richieste';
@@ -15,7 +19,9 @@ const MAX_CORPO = 20000;          // byte massimi di una richiesta al backend
 const DURATA_SESSIONE = 4 * 3600; // secondi di validità dell'accesso membri
 const MAX_TENTATIVI = 8;          // password sbagliate prima del blocco
 const BLOCCO = 15 * 60;           // secondi di blocco dopo troppi tentativi
-const MAX_INVII = 40;             // richieste massime ogni 10 minuti per tutto il sito
+const MAX_INVII = 20;             // richieste massime ogni 10 minuti per tutto il sito
+const MAX_INVII_GIORNO = 150;     // richieste massime al giorno per tutto il sito
+const FUSO = 'Europe/Rome';
 
 function doPost(e) {
   let esito;
@@ -134,6 +140,8 @@ function nuovoCodice() {
 
 function invia(dati) {
   if (dati.sito) return { ok: true }; // bot: finge successo, non salva
+  const chiusi = PropertiesService.getScriptProperties().getProperty('INVII_CHIUSI');
+  if (chiusi && /^s/i.test(chiusi)) throw new ErroreUtente('Le richieste sono chiuse per qualche ora. Riprova più tardi.');
   const r = {};
   ['categoria', 'titolo', 'messaggio'].forEach(function (k) {
     r[k] = pulisci(dati[k], LIMITI[k]);
@@ -152,7 +160,11 @@ function invia(dati) {
     const finestra = 'invii_' + Math.floor(Date.now() / 600000);
     const n = Number(c.get(finestra) || 0);
     if (n >= MAX_INVII) throw new ErroreUtente('Stiamo ricevendo troppe richieste. Riprova tra qualche minuto.');
+    const giorno = 'invii_giorno_' + Utilities.formatDate(new Date(), FUSO, 'yyyyMMdd');
+    const g = Number(c.get(giorno) || 0);
+    if (g >= MAX_INVII_GIORNO) throw new ErroreUtente('Per oggi abbiamo ricevuto troppe richieste. Riprova domani.');
     c.put(finestra, String(n + 1), 900);
+    c.put(giorno, String(g + 1), 25 * 3600);
     c.put(impronta, '1', 3600);
     foglio().appendRow([nuovoCodice(), new Date(), r.categoria, r.titolo, r.messaggio]);
     return { ok: true };
@@ -188,6 +200,35 @@ function elimina(dati) {
     if (!r) throw new ErroreUtente('Richiesta non trovata.');
     foglio().deleteRow(r.riga);
     return { ok: true };
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+// Da eseguire a mano dall'editor: cancella tutte le richieste arrivate oggi dalle 8:30 in poi.
+// Per un altro orario cambiate '08:30' qui sotto.
+function cancellaSpamDiOggi() {
+  const oggi = Utilities.formatDate(new Date(), FUSO, 'yyyy-MM-dd');
+  cancellaDal(Utilities.parseDate(oggi + ' 08:30', FUSO, 'yyyy-MM-dd HH:mm'));
+}
+
+function cancellaDal(inizio) {
+  const lock = LockService.getScriptLock();
+  lock.waitLock(30000);
+  try {
+    const sh = foglio();
+    const da = righe()
+      .filter(function (r) { return new Date(r.data) >= inizio; })
+      .map(function (r) { return r.riga; });
+    // Dal basso verso l'alto, a blocchi di righe consecutive, così i numeri di riga restano validi.
+    let i = da.length - 1;
+    while (i >= 0) {
+      let j = i;
+      while (j > 0 && da[j - 1] === da[j] - 1) j--;
+      sh.deleteRows(da[j], i - j + 1);
+      i = j - 1;
+    }
+    console.log('Cancellate ' + da.length + ' richieste arrivate dal ' + Utilities.formatDate(inizio, FUSO, 'dd/MM/yyyy HH:mm') + '.');
   } finally {
     lock.releaseLock();
   }
