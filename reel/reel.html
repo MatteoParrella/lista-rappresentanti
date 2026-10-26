@@ -3,6 +3,15 @@
 <head>
 <meta charset="utf-8">
 <title>Capolista – Reel</title>
+<!--
+  Reel 1080x1920. Regole seguite (come fanno brand e creator):
+  - gancio nel primo secondo, niente logo in apertura: il logo arriva alla fine;
+  - tutto il testo importante dentro la "safe zone" di Instagram:
+    y 270–1250 (sopra c'è l'interfaccia, sotto la didascalia) e lontano dal bordo destro
+    (like/commenti): per questo la camera è spostata di 40px a sinistra;
+  - leggibile anche senza audio, tagli rapidi, invito all'azione chiaro.
+  Aggiungere ?guida=1 all'URL per vedere la safe zone.
+-->
 <style>
   @font-face { font-family: "Oswald"; src: url("fonts/oswald.woff2") format("woff2"); font-weight: 200 700; }
   :root { --blu: #13307a; --blu-scuro: #0b1f52; --blu-chiaro: #2a4fa8; --bianco: #fff; --giallo: #f2b705; --verde: #009246; }
@@ -15,41 +24,47 @@
   .center { position: absolute; left: 0; right: 0; text-align: center; }
   .osw { font-family: "Oswald", sans-serif; font-weight: 700; text-transform: uppercase; letter-spacing: 0.02em; line-height: 1; }
   .scene { position: absolute; inset: 0; display: none; }
+  .evid { background: var(--giallo); color: var(--blu); padding: 0 16px; border-radius: 10px; display: inline-block; }
   #particelle span { position: absolute; border-radius: 50%; background: #fff; }
   #wipe { position: absolute; top: -20%; height: 140%; width: 150%; left: 0; background: #fff; transform: skewX(-14deg); z-index: 50; }
   #wipe::after { content: ""; position: absolute; top: 0; bottom: 0; right: 14%; width: 26px; background: var(--blu); }
   #flash { position: absolute; inset: 0; background: #fff; z-index: 60; opacity: 0; }
+  #guida { position: absolute; inset: 0; z-index: 99; pointer-events: none; display: none; }
+  #guida div { position: absolute; background: rgba(255,0,0,0.3); }
 
-  /* S1 intro */
-  #s1-gruppo { position: absolute; left: 0; right: 0; top: 560px; display: flex; flex-direction: column; align-items: center; }
-  #s1-villa { width: 520px; }
-  #s1-titolo { font-size: 210px; margin-top: 40px; display: flex; }
-  #s1-titolo span, #s7-parola span { display: inline-block; }
-  #s1-linea { height: 16px; background: #fff; border-radius: 8px; margin-top: 26px; width: 0; }
-  #s1-sotto { font-family: "Oswald"; font-weight: 500; font-size: 46px; letter-spacing: 0.2em; margin-top: 26px; text-transform: uppercase; }
+  /* S0 gancio: POV */
+  #s0-pov { top: 330px; font-size: 64px; color: var(--giallo); letter-spacing: 0.1em; }
+  #s0-testo { position: absolute; left: 0; right: 0; top: 440px; text-align: center; }
+  #s0-testo div { font-size: 118px; line-height: 1.12; }
+  #s0-bolla { position: absolute; left: 50%; top: 940px; padding: 28px 44px; border-radius: 40px; border-bottom-right-radius: 10px;
+    background: rgba(255,255,255,0.14); border: 3px solid rgba(255,255,255,0.5); font-size: 50px; font-weight: 700; white-space: nowrap; }
 
-  /* S2 domande */
-  #s2 .domanda { position: absolute; left: 0; right: 0; top: 0; bottom: 0; display: flex; align-items: center; justify-content: center; flex-direction: column; }
-  #s2 .domanda b { font-size: 138px; display: block; white-space: nowrap; }
-  #s2 .domanda i { font-style: normal; font-family: "Oswald"; font-weight: 500; font-size: 60px; letter-spacing: 0.12em; margin-bottom: 28px; text-transform: uppercase; }
+  /* S1 nessuno -> capolista */
+  #s1-box { position: absolute; left: 0; right: 0; top: 520px; text-align: center; }
+  #s1-chi { position: relative; display: inline-block; font-size: 170px; height: 190px; }
+  #s1-nessuno, #s1-capolista { display: inline-block; }
+  #s1-capolista { position: absolute; left: 50%; top: 0; transform-origin: 50% 50%; white-space: nowrap; }
+  #s1-barra { position: absolute; left: -20px; top: 82px; height: 26px; background: var(--giallo); border-radius: 13px; }
+  #s1-ascolta { font-size: 150px; margin-top: 40px; }
+  #s1-sotto { top: 1080px; font-size: 50px; font-weight: 700; }
 
-  /* S3 bolle */
-  #s3-titolo { top: 170px; font-size: 120px; }
-  #s3-titolo small { display: block; font-size: 52px; font-weight: 500; letter-spacing: 0.14em; margin-bottom: 18px; }
-  .bolla { position: absolute; max-width: 760px; padding: 34px 44px; border-radius: 46px; font-size: 50px; font-weight: 700; line-height: 1.2;
+  /* S2 bolle */
+  #s2-titolo { top: 300px; font-size: 96px; }
+  #s2-titolo small { display: block; font-size: 46px; font-weight: 500; letter-spacing: 0.14em; margin-bottom: 16px; }
+  .bolla { position: absolute; max-width: 700px; padding: 26px 38px; border-radius: 40px; font-size: 44px; font-weight: 700; line-height: 1.2;
     background: #fff; color: var(--blu); box-shadow: 0 20px 50px rgba(0,0,0,0.25); }
-  .bolla.sx { left: 70px; border-bottom-left-radius: 10px; }
-  .bolla.dx { right: 70px; border-bottom-right-radius: 10px; background: rgba(255,255,255,0.14); color: #fff; border: 3px solid rgba(255,255,255,0.5); backdrop-filter: blur(6px); }
+  .bolla.sx { left: 130px; border-bottom-left-radius: 10px; }
+  .bolla.dx { right: 175px; border-bottom-right-radius: 10px; background: rgba(255,255,255,0.14); color: #fff; border: 3px solid rgba(255,255,255,0.5); }
 
-  /* S4 telefono */
-  #s4-titolo { top: 130px; font-size: 104px; }
-  #s4-titolo small { display: block; font-size: 50px; font-weight: 500; letter-spacing: 0.14em; margin-top: 18px; }
+  /* S3 telefono */
+  #s3-titolo { top: 290px; font-size: 96px; }
+  #s3-titolo small { display: block; font-size: 44px; font-weight: 500; letter-spacing: 0.14em; margin-top: 14px; }
   #telefono { position: absolute; left: 230px; top: 470px; width: 620px; height: 1280px; border-radius: 80px; background: #050d24; padding: 22px;
-    box-shadow: 0 50px 120px rgba(0,0,0,0.5), inset 0 0 0 4px rgba(255,255,255,0.15); }
+    box-shadow: 0 50px 120px rgba(0,0,0,0.5), inset 0 0 0 4px rgba(255,255,255,0.15); transform-origin: 50% 0; }
   #schermo { position: relative; width: 100%; height: 100%; border-radius: 60px; overflow: hidden;
     background: radial-gradient(circle at 20% 0%, var(--blu-chiaro) 0%, var(--blu) 45%, var(--blu-scuro) 100%); padding: 90px 36px 0; }
   #notch { position: absolute; top: 18px; left: 50%; width: 170px; height: 44px; margin-left: -85px; background: #050d24; border-radius: 30px; }
-  #schermo .mini-hero { display: flex; flex-direction: column; align-items: center; margin-bottom: 34px; }
+  #schermo .mini-hero { display: flex; flex-direction: column; align-items: center; margin-bottom: 30px; }
   #schermo .mini-hero img { width: 150px; }
   #schermo .mini-hero b { font-size: 76px; margin-top: 12px; }
   #schermo .mini-hero hr { border: 0; height: 6px; width: 290px; background: #fff; border-radius: 3px; margin: 10px 0 8px; }
@@ -59,36 +74,39 @@
   .card h3::after { content: ""; display: block; width: 76px; height: 6px; background: #fff; margin-top: 10px; border-radius: 3px; }
   .card label { display: block; font-weight: 700; font-size: 22px; margin: 22px 0 9px; }
   .campo { border: 2px solid rgba(255,255,255,0.22); background: rgba(0,0,0,0.18); border-radius: 14px; padding: 15px 18px; font-size: 23px; min-height: 58px; }
-  .campo.area { min-height: 150px; line-height: 1.35; }
+  .campo.area { min-height: 120px; line-height: 1.35; }
   .cursore { display: inline-block; width: 3px; height: 26px; background: #fff; vertical-align: -4px; margin-left: 2px; }
-  #btn-invia { display: inline-block; margin-top: 26px; background: #fff; color: var(--blu); border-radius: 14px; padding: 18px 34px; font-size: 26px; letter-spacing: 0.08em; position: relative; overflow: hidden; }
+  #btn-invia { display: inline-block; margin-top: 24px; background: #fff; color: var(--blu); border-radius: 14px; padding: 18px 34px; font-size: 26px; letter-spacing: 0.08em; position: relative; overflow: hidden; }
   #ripple { position: absolute; border-radius: 50%; background: rgba(19,48,122,0.35); width: 20px; height: 20px; }
-  #ok { margin-top: 22px; border-radius: 14px; padding: 18px 20px; background: rgba(0,146,70,0.3); border: 2px solid var(--verde); font-size: 22px; line-height: 1.35; }
   #dito { position: absolute; width: 90px; height: 90px; border-radius: 50%; background: rgba(255,255,255,0.5); border: 5px solid #fff; z-index: 5; }
+  /* conferma grande fuori dal telefono, dentro la safe zone */
+  #s3-ok { position: absolute; left: 190px; right: 190px; top: 880px; z-index: 6; border-radius: 26px; padding: 26px 30px; background: #0c7a43;
+    border: 4px solid #fff; font-size: 40px; font-weight: 700; text-align: center; box-shadow: 0 30px 70px rgba(0,0,0,0.45); }
+  #s3-ok small { display: block; font-size: 30px; font-weight: 500; margin-top: 6px; }
 
-  /* S5 anonimo */
-  #s5-lucchetto { position: absolute; left: 50%; top: 260px; width: 340px; margin-left: -170px; }
-  #s5-timbro { top: 790px; font-size: 180px; line-height: 1.05; }
-  #s5-timbro em { font-style: normal; display: inline-block; border: 14px solid #fff; padding: 20px 50px 30px; border-radius: 28px; }
-  #s5-sotto { top: 1340px; font-size: 52px; font-weight: 700; line-height: 1.5; }
-  #s5-sotto div { display: block; }
+  /* S4 anonimo */
+  #s4-lucchetto { position: absolute; left: 50%; top: 290px; width: 220px; margin-left: -110px; }
+  #s4-timbro { top: 610px; font-size: 150px; line-height: 1.05; }
+  #s4-timbro em { font-style: normal; display: inline-block; border: 12px solid #fff; padding: 18px 44px 26px; border-radius: 26px; }
+  #s4-sotto { top: 1010px; font-size: 46px; font-weight: 700; line-height: 1.45; }
 
-  /* S6 */
-  #s6 .riga6 { position: absolute; left: 0; right: 0; text-align: center; font-size: 150px; }
-  #s6-link { position: absolute; left: 90px; right: 90px; top: 1180px; background: #fff; color: var(--blu); border-radius: 999px; padding: 40px 0; text-align: center; font-size: 66px; font-weight: 800; }
-  #s6-bio { top: 1390px; font-size: 64px; letter-spacing: 0.1em; }
-  #s6-freccia { position: absolute; left: 50%; top: 1500px; width: 110px; margin-left: -55px; }
+  /* S5 */
+  #s5 .riga { position: absolute; left: 0; right: 0; text-align: center; font-size: 130px; }
+  #s5-link { position: absolute; left: 170px; right: 170px; top: 930px; background: #fff; color: var(--blu); border-radius: 999px; padding: 32px 0; text-align: center; font-size: 54px; font-weight: 800; }
+  #s5-bio { top: 1080px; font-size: 56px; letter-spacing: 0.1em; }
+  #s5-freccia { position: absolute; left: 50%; top: 1150px; width: 80px; margin-left: -40px; }
 
-  /* S7 vamoraga */
-  #raggi { position: absolute; left: 50%; top: 50%; width: 3400px; height: 3400px; margin: -1700px 0 0 -1700px;
+  /* S6 vamoraga */
+  #raggi { position: absolute; left: 50%; top: 700px; width: 3400px; height: 3400px; margin: -1700px 0 0 -1700px;
     background: repeating-conic-gradient(rgba(255,255,255,0.09) 0 10deg, transparent 10deg 20deg); border-radius: 50%; }
-  #s7-parola { position: absolute; left: 0; right: 0; top: 760px; display: flex; justify-content: center; font-size: 190px; }
-  #s7-motto { top: 1040px; font-size: 54px; letter-spacing: 0.16em; font-weight: 500; }
-  #s7-linea { position: absolute; left: 50%; top: 990px; height: 14px; background: #fff; border-radius: 7px; }
-  #s7-firma { position: absolute; left: 0; right: 0; bottom: 210px; display: flex; flex-direction: column; align-items: center; }
-  #s7-firma img { width: 200px; }
-  #s7-firma b { font-size: 92px; margin-top: 12px; }
-  #s7-firma span { font-size: 40px; margin-top: 14px; font-weight: 600; opacity: 0.9; }
+  #s6-parola { position: absolute; left: 0; right: 0; top: 520px; display: flex; justify-content: center; font-size: 168px; }
+  #s6-parola span, #s0-testo span { display: inline-block; }
+  #s6-linea { position: absolute; left: 50%; top: 718px; height: 12px; background: #fff; border-radius: 6px; }
+  #s6-motto { top: 755px; font-size: 44px; letter-spacing: 0.14em; font-weight: 500; }
+  #s6-firma { position: absolute; left: 0; right: 0; top: 880px; display: flex; flex-direction: column; align-items: center; }
+  #s6-firma img { width: 170px; }
+  #s6-firma b { font-size: 84px; margin-top: 10px; }
+  #s6-firma span { font-size: 38px; margin-top: 12px; font-weight: 600; opacity: 0.9; }
   #coriandoli i { position: absolute; display: block; }
 </style>
 </head>
@@ -97,32 +115,34 @@
   <div id="particelle"></div>
   <div id="camera" class="abs" style="inset:0">
 
-    <section class="scene" id="s1">
-      <div id="s1-gruppo">
-        <img id="s1-villa" src="../assets/villa.svg" alt="">
-        <div id="s1-titolo" class="osw"></div>
-        <div id="s1-linea"></div>
-        <div id="s1-sotto">Rappresentanti d'istituto</div>
+    <section class="scene" id="s0">
+      <div id="s0-pov" class="center osw">POV:</div>
+      <div id="s0-testo" class="osw">
+        <div><span>I distributori</span></div>
+        <div><span>sono rotti</span></div>
+        <div><span class="evid">da 3 settimane</span></div>
       </div>
+      <div id="s0-bolla">…e nessuno fa niente</div>
+    </section>
+
+    <section class="scene" id="s1">
+      <div id="s1-box" class="osw">
+        <div id="s1-chi"><span id="s1-nessuno">NESSUNO</span><span id="s1-barra"></span><span id="s1-capolista">CAPOLISTA</span></div>
+        <div id="s1-ascolta">TI ASCOLTA<span id="s1-punto">?</span></div>
+      </div>
+      <div id="s1-sotto" class="center">Adesso sì.</div>
     </section>
 
     <section class="scene" id="s2">
-      <div class="domanda osw"><i>Hai</i><b>UN'IDEA?</b></div>
-      <div class="domanda osw"><i>Hai</i><b>UN PROBLEMA?</b></div>
-      <div class="domanda osw"><i>Hai</i><b>UNA PROPOSTA?</b></div>
+      <div id="s2-titolo" class="center osw"><small>Lo sappiamo che…</small>VOLETE DIRCI<br>DI TUTTO</div>
+      <div class="bolla sx" style="top:610px">Il wifi in aula 12? Mai visto</div>
+      <div class="bolla dx" style="top:760px">Festa di fine anno in giardino!!</div>
+      <div class="bolla sx" style="top:910px">Meno verifiche il lunedì pls</div>
+      <div class="bolla dx" style="top:1060px">Carta igienica… dove sei?</div>
     </section>
 
     <section class="scene" id="s3">
-      <div id="s3-titolo" class="center osw"><small>Lo sappiamo che…</small>VOLETE DIRCI<br>DI TUTTO</div>
-      <div class="bolla sx" style="top:620px">I distributori sono rotti da 3 settimane</div>
-      <div class="bolla dx" style="top:850px">Il wifi in aula 12? Mai visto</div>
-      <div class="bolla sx" style="top:1040px">Festa di fine anno in giardino!!</div>
-      <div class="bolla dx" style="top:1270px">Meno verifiche il lunedì pls</div>
-      <div class="bolla sx" style="top:1460px">Carta igienica… dove sei?</div>
-    </section>
-
-    <section class="scene" id="s4">
-      <div id="s4-titolo" class="center osw">ORA C'È IL SITO<small>Scrivici in 10 secondi</small></div>
+      <div id="s3-titolo" class="center osw">ORA C'È IL SITO<small>Scrivici in 10 secondi</small></div>
       <div id="telefono">
         <div id="schermo">
           <div id="notch"></div>
@@ -141,43 +161,41 @@
             <label>Messaggio</label>
             <div class="campo area" id="f-msg"></div>
             <div id="btn-invia" class="osw">Invia richiesta<span id="ripple"></span></div>
-            <div id="ok"><b>Richiesta inviata, grazie!</b><br>L'abbiamo ricevuta in forma anonima.</div>
           </div>
           <div id="dito"></div>
         </div>
       </div>
+      <div id="s3-ok">Richiesta inviata!<small>Arriva a noi in forma anonima.</small></div>
     </section>
 
-    <section class="scene" id="s5">
-      <svg id="s5-lucchetto" viewBox="0 0 100 120">
+    <section class="scene" id="s4">
+      <svg id="s4-lucchetto" viewBox="0 0 100 120">
         <path id="arco" d="M25 55 V35 a25 25 0 0 1 50 0 V55" fill="none" stroke="#fff" stroke-width="11" stroke-linecap="round"/>
         <rect x="10" y="52" width="80" height="64" rx="12" fill="#fff"/>
         <circle cx="50" cy="80" r="9" fill="#13307a"/>
         <rect x="46" y="82" width="8" height="18" rx="4" fill="#13307a"/>
       </svg>
-      <div id="s5-timbro" class="center osw"><em>100%<br>ANONIMO</em></div>
-      <div id="s5-sotto" class="center">
-        <div>Niente nome.</div><div>Niente classe.</div><div>Niente contatti.</div>
-      </div>
+      <div id="s4-timbro" class="center osw"><em>100%<br>ANONIMO</em></div>
+      <div id="s4-sotto" class="center"><div>Niente nome.</div><div>Niente classe.</div><div>Niente contatti.</div></div>
+    </section>
+
+    <section class="scene" id="s5">
+      <div class="riga osw" style="top:300px">VOI</div>
+      <div class="riga osw" style="top:430px">SCRIVETE.</div>
+      <div class="riga osw" style="top:600px">NOI</div>
+      <div class="riga osw" style="top:730px">AGIAMO.</div>
+      <div id="s5-link">capolista.vercel.app</div>
+      <div id="s5-bio" class="center osw">Link in bio</div>
+      <svg id="s5-freccia" viewBox="0 0 100 100"><path d="M50 90 V15 M18 45 L50 12 L82 45" fill="none" stroke="#fff" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </section>
 
     <section class="scene" id="s6">
-      <div class="riga6 osw" style="top:330px">VOI</div>
-      <div class="riga6 osw" style="top:490px">SCRIVETE.</div>
-      <div class="riga6 osw" style="top:700px">NOI</div>
-      <div class="riga6 osw" style="top:860px">AGIAMO.</div>
-      <div id="s6-link">capolista.vercel.app</div>
-      <div id="s6-bio" class="center osw">Link in bio</div>
-      <svg id="s6-freccia" viewBox="0 0 100 100"><path d="M50 90 V15 M18 45 L50 12 L82 45" fill="none" stroke="#fff" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/></svg>
-    </section>
-
-    <section class="scene" id="s7">
       <div id="raggi"></div>
       <div id="coriandoli"></div>
-      <div id="s7-parola" class="osw"></div>
-      <div id="s7-linea"></div>
-      <div id="s7-motto" class="center osw">In testa per il vostro futuro</div>
-      <div id="s7-firma">
+      <div id="s6-parola" class="osw"></div>
+      <div id="s6-linea"></div>
+      <div id="s6-motto" class="center osw">In testa per il vostro futuro</div>
+      <div id="s6-firma">
         <img src="../assets/villa.svg" alt="">
         <b class="osw">CAPOLISTA</b>
         <span>@capolista_vg</span>
@@ -186,6 +204,11 @@
   </div>
   <div id="wipe"></div>
   <div id="flash"></div>
+  <div id="guida">
+    <div style="left:0;right:0;top:0;height:270px"></div>
+    <div style="left:0;right:0;bottom:0;height:670px"></div>
+    <div style="right:0;width:160px;top:270px;bottom:670px"></div>
+  </div>
 </div>
 
 <script>
@@ -213,14 +236,15 @@
   const $$ = (s) => [...document.querySelectorAll(s)];
   const css = (el, o) => Object.assign(el.style, o);
 
-  // ---------- montaggio ----------
-  // ogni scena: [inizio, fine]; i cambi coincidono con lo "swipe" bianco
-  const SCENE = { s1: [0, 2.3], s2: [2.3, 4.75], s3: [4.75, 7.6], s4: [7.6, 11.0], s5: [11.0, 13.1], s6: [13.1, 15.2], s7: [15.2, 19.0] };
-  const TAGLI = [4.75, 7.6, 11.0, 13.1, 15.2];
-  const DURATA = 19.0;
+  // ---------- montaggio (secondi) — audio.py usa gli stessi tempi ----------
+  const SCENE = { s0: [0, 1.9], s1: [1.9, 4.1], s2: [4.1, 6.6], s3: [6.6, 10.3], s4: [10.3, 12.4], s5: [12.4, 14.5], s6: [14.5, 18.8] };
+  const TAGLI = [1.9, 4.1, 6.6, 10.3, 12.4, 14.5];
+  const DURATA = 18.8;
+  const BOTTO = 15.35;
+  const BATT = 0.4615; // ~130 bpm
 
-  "CAPOLISTA".split("").forEach((c) => { const s = document.createElement("span"); s.textContent = c; $("#s1-titolo").append(s); });
-  "VAMORAGA".split("").forEach((c) => { const s = document.createElement("span"); s.textContent = c; $("#s7-parola").append(s); });
+  if (/guida=1/.test(location.search)) $("#guida").style.display = "block";
+  "VAMORAGA".split("").forEach((c) => { const s = document.createElement("span"); s.textContent = c; $("#s6-parola").append(s); });
 
   const PART = [];
   for (let i = 0; i < 34; i++) {
@@ -243,172 +267,154 @@
   }
 
   const TESTO_OGG = "Distributori rotti";
-  const TESTO_MSG = "Al secondo piano non funzionano da 3 settimane. Aiutateci!";
+  const TESTO_MSG = "Al secondo piano non vanno da 3 settimane!";
 
   function render(t) {
-    // scene visibili
     for (const [id, [a, b]] of Object.entries(SCENE)) $("#" + id).style.display = t >= a && t < b ? "block" : "none";
 
-    // particelle di sfondo che salgono
     PART.forEach((q) => {
       const y = ((q.y - t * q.v) % 2000 + 2000) % 2000 - 40;
       const x = q.x + Math.sin(t * 1.3 + q.f) * 30;
       css(q.el, { transform: `translate(${x}px, ${y}px)`, opacity: q.o });
     });
 
-    // swipe bianco tra le scene
     let wipeX = 3000;
     for (const T of TAGLI) {
-      const k = p(t, T - 0.24, T + 0.24);
+      const k = p(t, T - 0.22, T + 0.22);
       if (k > 0 && k < 1) wipeX = lerp(1250, -1900, inOut(k));
     }
     $("#wipe").style.transform = `translateX(${wipeX}px) skewX(-14deg)`;
 
-    // leggero zoom continuo della "camera" dentro ogni scena
+    // camera: 40px a sinistra (via dai pulsanti di Instagram) + leggero zoom continuo
     let z = 1;
     for (const [a, b] of Object.values(SCENE)) if (t >= a && t < b) z = 1 + 0.035 * p(t, a, b);
-    $("#camera").style.transform = `scale(${z})`;
+    $("#camera").style.transform = `translateX(-40px) scale(${z})`;
 
     let flash = 0;
 
-    // ---------- S1: logo ----------
-    if (t < SCENE.s1[1]) {
-      const kv = outBack(p(t, 0.05, 0.6), 2.2);
-      const usc = inCubic(p(t, 1.85, 2.3));
-      css($("#s1-gruppo"), { transform: `scale(${1 + usc * 7})`, opacity: 1 - p(t, 2.05, 2.3) });
-      css($("#s1-villa"), { transform: `translateY(${(1 - kv) * -300}px) scale(${kv})`, opacity: p(t, 0.05, 0.2) });
-      $$("#s1-titolo span").forEach((s, i) => {
-        const k = p(t, 0.35 + i * 0.045, 0.75 + i * 0.045);
-        const e = outBack(k, 2.6);
-        css(s, { transform: `translateY(${(1 - e) * 260}px) rotate(${(1 - e) * (i % 2 ? 25 : -25)}deg)`, opacity: cl(k * 3) });
+    // ---------- S0: gancio POV, visibile già dal primo fotogramma ----------
+    if (t < SCENE.s0[1]) {
+      css($("#s0-pov"), { transform: `scale(${lerp(1.4, 1, outCubic(p(t, 0, 0.12)))})` });
+      $$("#s0-testo span").forEach((s, i) => {
+        const a = i * 0.16 - 0.1; // la prima riga è già quasi ferma al fotogramma 0 (anteprima)
+        const k = p(t, a, a + 0.14);
+        const [sx, sy] = shake(t, a + 0.12, 0.25, 16);
+        css(s, { transform: `translate(${sx}px, ${sy}px) scale(${lerp(1.8, 1, outCubic(k))}) rotate(${i === 2 ? -3 : 0}deg)`,
+          opacity: i === 0 ? 1 : cl(k * 3) });
       });
-      $("#s1-linea").style.width = outExpo(p(t, 0.85, 1.3)) * 860 + "px";
-      const ks = p(t, 1.05, 1.5);
-      css($("#s1-sotto"), { opacity: ks, letterSpacing: lerp(0.6, 0.2, outCubic(ks)) + "em" });
-      flash = Math.max(flash, 1 - p(t, 0, 0.25));
+      const kb = outElastic(p(t, 0.85, 1.4));
+      css($("#s0-bolla"), { transform: `translateX(-50%) scale(${cl(kb, 0, 2)})`, opacity: p(t, 0.85, 0.95), transformOrigin: "100% 100%" });
     }
 
-    // ---------- S2: domande a raffica ----------
+    // ---------- S1: NESSUNO -> CAPOLISTA ti ascolta ----------
+    if (t >= SCENE.s1[0] && t < SCENE.s1[1]) {
+      const kin = outBack(p(t, 1.95, 2.3), 2);
+      css($("#s1-box"), { transform: `scale(${kin})`, opacity: p(t, 1.95, 2.05) });
+      const nes = $("#s1-nessuno");
+      const kbar = outExpo(p(t, 2.55, 2.8));
+      css($("#s1-barra"), { width: kbar * (nes.offsetWidth + 40) + "px", opacity: 1 - p(t, 2.95, 3.0) });
+      const kcade = inCubic(p(t, 2.9, 3.35));
+      css(nes, { transform: `translateY(${kcade * 900}px) rotate(${kcade * 50}deg)`, opacity: 1 - p(t, 3.2, 3.35) });
+      const kc = outBack(p(t, 3.0, 3.3), 2.6);
+      const [sx, sy] = shake(t, 3.25, 0.3, 22);
+      css($("#s1-capolista"), { transform: `translate(calc(-50% + ${sx}px), ${(1 - kc) * -700 + sy}px) rotate(${(1 - kc) * -20}deg)`,
+        opacity: p(t, 3.0, 3.05), color: t > 3.25 ? "var(--giallo)" : "#fff" });
+      $("#s1-punto").textContent = t > 3.25 ? "." : "?";
+      if (t > 3.25) flash = Math.max(flash, 0.45 * (1 - p(t, 3.25, 3.45)));
+      const ks = p(t, 3.45, 3.7);
+      css($("#s1-sotto"), { opacity: ks, transform: `translateY(${(1 - outCubic(ks)) * 40}px)` });
+    }
+
+    // ---------- S2: bolle dei messaggi ----------
     if (t >= SCENE.s2[0] && t < SCENE.s2[1]) {
-      const inizi = [2.3, 3.1, 3.9];
-      const sfondi = [null, "#ffffff", null];
-      let attiva = 0;
-      inizi.forEach((a, i) => { if (t >= a) attiva = i; });
-      $("#stage").style.background = sfondi[attiva] || "";
-      $$("#s2 .domanda").forEach((d, i) => {
-        const a = inizi[i];
-        const vis = i === attiva;
-        d.style.display = vis ? "flex" : "none";
-        if (!vis) return;
-        const k = p(t, a, a + 0.22);
-        const sc = lerp(3.2, 1, outCubic(k)) + 0.06 * Math.sin(p(t, a + 0.22, a + 0.8) * Math.PI);
-        const [sx, sy] = shake(t, a + 0.18, 0.35, 26);
-        const rot = [-4, 3, -3][i];
-        css(d, { transform: `translate(${sx}px, ${sy}px) scale(${sc}) rotate(${rot * outCubic(k)}deg)`, opacity: cl(k * 2.5),
-          filter: `blur(${(1 - k) * 18}px)`, color: sfondi[i] ? "var(--blu)" : "#fff" });
-        if (i === 2) {
-          const u = inCubic(p(t, 4.45, 4.75));
-          d.style.transform += ` translateX(${u * -1400}px)`;
-        }
-      });
-    } else {
-      $("#stage").style.background = "";
-    }
-
-    // ---------- S3: bolle dei messaggi ----------
-    if (t >= SCENE.s3[0] && t < SCENE.s3[1]) {
-      const kt = outBack(p(t, 4.85, 5.3), 2);
-      css($("#s3-titolo"), { transform: `scale(${kt})`, opacity: p(t, 4.85, 5.0) });
-      $$("#s3 .bolla").forEach((b, i) => {
-        const a = 5.2 + i * 0.32;
+      const kt = outBack(p(t, 4.2, 4.6), 2);
+      css($("#s2-titolo"), { transform: `scale(${kt})`, opacity: p(t, 4.2, 4.3) });
+      $$("#s2 .bolla").forEach((b, i) => {
+        const a = 4.55 + i * 0.3;
         const k = p(t, a, a + 0.5);
         const e = outElastic(k);
         const dx = b.classList.contains("dx");
         const bob = Math.sin((t - a) * 3 + i) * 8 * p(t, a + 0.5, a + 0.8);
-        const fuga = inCubic(p(t, 7.15 + i * 0.04, 7.6));
+        const fuga = inCubic(p(t, 6.2 + i * 0.04, 6.6));
         css(b, { transform: `translate(${(1 - cl(e, -1, 2)) * (dx ? 120 : -120)}px, ${bob - fuga * 1800}px) scale(${cl(e, 0, 2)}) rotate(${(dx ? 2 : -2) * (1 - k) + fuga * (dx ? 20 : -20)}deg)`,
           opacity: cl(k * 4), transformOrigin: dx ? "100% 100%" : "0% 100%" });
       });
     }
 
-    // ---------- S4: telefono con il sito ----------
-    if (t >= SCENE.s4[0] && t < SCENE.s4[1]) {
-      const kt = p(t, 7.65, 8.05);
-      css($("#s4-titolo"), { transform: `translateY(${(1 - outBack(kt, 2)) * -200}px)`, opacity: kt });
-      const kp = outExpo(p(t, 7.75, 8.45));
-      const uscita = inCubic(p(t, 10.65, 11.0));
-      css($("#telefono"), { transform: `perspective(1800px) translateY(${(1 - kp) * 1300 + uscita * 200}px) rotateX(${(1 - kp) * 35}deg) rotateY(${Math.sin(t * 1.4) * 5}deg) rotateZ(${(1 - kp) * -10}deg) scale(${1 - uscita * 0.3})`,
+    // ---------- S3: telefono con il sito ----------
+    if (t >= SCENE.s3[0] && t < SCENE.s3[1]) {
+      const kt = p(t, 6.65, 7.0);
+      css($("#s3-titolo"), { transform: `translateY(${(1 - outBack(kt, 2)) * -200}px)`, opacity: kt });
+      const kp = outExpo(p(t, 6.7, 7.4));
+      const uscita = inCubic(p(t, 10.0, 10.3));
+      css($("#telefono"), { transform: `perspective(1800px) translateY(${(1 - kp) * 1300}px) rotateX(${(1 - kp) * 35}deg) rotateY(${Math.sin(t * 1.4) * 5}deg) rotateZ(${(1 - kp) * -10}deg) scale(${0.62 - uscita * 0.15})`,
         opacity: 1 - uscita });
-      // compilazione del modulo
       const cursore = '<span class="cursore"></span>';
       const lamp = Math.floor(t * 3) % 2 === 0;
-      $("#f-cat").textContent = t > 8.6 ? "Strutture e spazi" : "Scegli…";
-      css($("#f-cat"), { borderColor: t > 8.55 && t < 8.75 ? "#fff" : "" });
-      const no = Math.round(TESTO_OGG.length * p(t, 8.75, 9.3));
-      $("#f-ogg").innerHTML = TESTO_OGG.slice(0, no) + (t > 8.75 && t < 9.4 && lamp ? cursore : "");
-      const nm = Math.round(TESTO_MSG.length * p(t, 9.4, 10.0));
-      $("#f-msg").innerHTML = TESTO_MSG.slice(0, nm) + (t > 9.4 && t < 10.05 && lamp ? cursore : "");
-      // dito che preme INVIA
+      $("#f-cat").textContent = t > 7.6 ? "Strutture e spazi" : "Scegli…";
+      css($("#f-cat"), { borderColor: t > 7.55 && t < 7.75 ? "#fff" : "" });
+      const no = Math.round(TESTO_OGG.length * p(t, 7.75, 8.25));
+      $("#f-ogg").innerHTML = TESTO_OGG.slice(0, no) + (t > 7.75 && t < 8.35 && lamp ? cursore : "");
+      const nm = Math.round(TESTO_MSG.length * p(t, 8.35, 8.95));
+      $("#f-msg").innerHTML = TESTO_MSG.slice(0, nm) + (t > 8.35 && t < 9.0 && lamp ? cursore : "");
       const btn = $("#btn-invia");
       const bx = btn.offsetLeft + btn.offsetWidth / 2 - 45;
       const by = btn.offsetTop + btn.offsetHeight / 2 - 45;
-      const kd = outCubic(p(t, 9.9, 10.2));
-      const press = p(t, 10.2, 10.3) - p(t, 10.3, 10.42);
-      css($("#dito"), { left: lerp(560, bx, kd) + "px", top: lerp(1250, by, kd) + "px", opacity: p(t, 9.9, 10.0) * (1 - p(t, 10.45, 10.6)),
+      const kd = outCubic(p(t, 8.85, 9.15));
+      const press = p(t, 9.15, 9.25) - p(t, 9.25, 9.37);
+      css($("#dito"), { left: lerp(560, bx, kd) + "px", top: lerp(1250, by, kd) + "px", opacity: p(t, 8.85, 8.95) * (1 - p(t, 9.4, 9.55)),
         transform: `scale(${1 - press * 0.25})` });
       css(btn, { transform: `scale(${1 - press * 0.08})` });
-      const kr = p(t, 10.25, 10.65);
+      const kr = p(t, 9.2, 9.6);
       css($("#ripple"), { left: btn.offsetWidth / 2 - 10 + "px", top: btn.offsetHeight / 2 - 10 + "px", transform: `scale(${kr * 40})`, opacity: kr > 0 ? 1 - kr : 0 });
-      const ko = outBack(p(t, 10.35, 10.6), 2.5);
-      css($("#ok"), { transform: `scale(${ko})`, opacity: p(t, 10.35, 10.45) });
+      const ko = outBack(p(t, 9.3, 9.6), 2.5);
+      css($("#s3-ok"), { transform: `scale(${ko}) rotate(${(1 - ko) * -6 - 2}deg)`, opacity: p(t, 9.3, 9.4) * (1 - uscita) });
     }
 
-    // ---------- S5: 100% anonimo ----------
-    if (t >= SCENE.s5[0] && t < SCENE.s5[1]) {
-      const kl = outBack(p(t, 11.1, 11.45), 2);
-      const chiudi = outCubic(p(t, 11.5, 11.65));
-      const [lx, ly] = shake(t, 11.62, 0.3, 14);
-      css($("#s5-lucchetto"), { transform: `translate(${lx}px, ${ly}px) scale(${kl}) rotate(${(1 - kl) * -30}deg)`, opacity: p(t, 11.1, 11.2) });
+    // ---------- S4: 100% anonimo ----------
+    if (t >= SCENE.s4[0] && t < SCENE.s4[1]) {
+      const kl = outBack(p(t, 10.4, 10.75), 2);
+      const chiudi = outCubic(p(t, 10.8, 10.95));
+      const [lx, ly] = shake(t, 10.92, 0.3, 14);
+      css($("#s4-lucchetto"), { transform: `translate(${lx}px, ${ly}px) scale(${kl}) rotate(${(1 - kl) * -30}deg)`, opacity: p(t, 10.4, 10.5) });
       $("#arco").setAttribute("transform", `translate(0 ${lerp(-16, 0, chiudi)})`);
-      const kb = p(t, 11.7, 11.88);
-      const [sx, sy] = shake(t, 11.86, 0.35, 30);
-      css($("#s5-timbro"), { transform: `translate(${sx}px, ${sy}px) scale(${lerp(2.6, 1, inCubic(kb))}) rotate(${lerp(-14, -5, kb)}deg)`, opacity: kb > 0 ? 1 : 0 });
-      if (t >= 11.86) flash = Math.max(flash, 0.55 * (1 - p(t, 11.86, 12.1)));
-      $$("#s5-sotto div").forEach((d, i) => {
-        const k = p(t, 12.1 + i * 0.16, 12.4 + i * 0.16);
+      const kb = p(t, 11.0, 11.18);
+      const [sx, sy] = shake(t, 11.16, 0.35, 30);
+      css($("#s4-timbro"), { transform: `translate(${sx}px, ${sy}px) scale(${lerp(2.6, 1, inCubic(kb))}) rotate(${lerp(-14, -5, kb)}deg)`, opacity: kb > 0 ? 1 : 0 });
+      if (t >= 11.16) flash = Math.max(flash, 0.55 * (1 - p(t, 11.16, 11.4)));
+      $$("#s4-sotto div").forEach((d, i) => {
+        const k = p(t, 11.4 + i * 0.16, 11.7 + i * 0.16);
         css(d, { transform: `translateY(${(1 - outBack(k, 2)) * 60}px)`, opacity: k });
       });
     }
 
-    // ---------- S6: voi scrivete, noi agiamo ----------
-    if (t >= SCENE.s6[0] && t < SCENE.s6[1]) {
-      $$("#s6 .riga6").forEach((r, i) => {
-        const a = 13.2 + i * 0.22;
+    // ---------- S5: voi scrivete, noi agiamo ----------
+    if (t >= SCENE.s5[0] && t < SCENE.s5[1]) {
+      $$("#s5 .riga").forEach((r, i) => {
+        const a = 12.5 + i * 0.2;
         const k = p(t, a, a + 0.28);
         const da = i % 2 ? 1 : -1;
         css(r, { transform: `translateX(${(1 - outExpo(k)) * 1100 * da}px) skewX(${(1 - k) * -20 * da}deg)`, opacity: k > 0 ? 1 : 0,
           color: i % 2 ? "#fff" : "rgba(255,255,255,0.55)" });
       });
-      const kl = outBack(p(t, 14.1, 14.45), 2.2);
-      css($("#s6-link"), { transform: `scale(${kl}) rotate(${(1 - kl) * 6}deg)`, opacity: p(t, 14.1, 14.2) });
-      const kb = p(t, 14.35, 14.6);
-      css($("#s6-bio"), { opacity: kb, transform: `translateY(${(1 - kb) * 40}px)` });
-      const salto = Math.abs(Math.sin((t - 14.45) * 7)) * 34;
-      css($("#s6-freccia"), { opacity: p(t, 14.45, 14.6), transform: `translateY(${salto}px)` });
+      const kl = outBack(p(t, 13.35, 13.7), 2.2);
+      css($("#s5-link"), { transform: `scale(${kl}) rotate(${(1 - kl) * 6}deg)`, opacity: p(t, 13.35, 13.45) });
+      const kb = p(t, 13.6, 13.85);
+      css($("#s5-bio"), { opacity: kb, transform: `translateY(${(1 - kb) * 40}px)` });
+      const salto = Math.abs(Math.sin((t - 13.7) * 7)) * 26;
+      css($("#s5-freccia"), { opacity: p(t, 13.7, 13.85), transform: `translateY(${salto}px)` });
     }
 
-    // ---------- S7: VAMORAGA ----------
-    if (t >= SCENE.s7[0]) {
-      $("#raggi").style.transform = `rotate(${t * 18}deg) scale(${0.6 + 0.4 * outExpo(p(t, 15.2, 15.8))})`;
-      const BOTTO = 16.05;
-      const BATT = 0.4615; // ~130 bpm
+    // ---------- S6: VAMORAGA ----------
+    if (t >= SCENE.s6[0]) {
+      $("#raggi").style.transform = `rotate(${t * 18}deg) scale(${0.6 + 0.4 * outExpo(p(t, 14.5, 15.1))})`;
       const dopo = t - BOTTO;
       const pulse = dopo > 0 ? Math.exp(-(dopo % BATT) * 9) : 0;
-      const finale = p(t, 18.3, 19.0);
-      css($("#s7-parola"), { transform: `scale(${1 + pulse * 0.07 - finale * 0.05})` });
+      const finale = p(t, 18.1, 18.8);
+      css($("#s6-parola"), { transform: `scale(${1 + pulse * 0.07 - finale * 0.05})` });
       const dirs = [[-1, -1], [0, -1.4], [1, -1], [-1.3, 0], [1.3, 0], [-1, 1], [0, 1.4], [1, 1]];
-      $$("#s7-parola span").forEach((s, i) => {
-        const a = 15.35 + i * 0.08;
+      $$("#s6-parola span").forEach((s, i) => {
+        const a = 14.55 + i * 0.06;
         const k = p(t, a, a + 0.38);
         const e = outBack(k, 2.4);
         const [dx, dy] = dirs[i];
@@ -416,22 +422,21 @@
         css(s, { transform: `translate(${(1 - e) * dx * 900}px, ${(1 - e) * dy * 900 + salto}px) rotate(${(1 - e) * (i % 2 ? 90 : -90)}deg) scale(${lerp(2.5, 1, e)})`,
           opacity: cl(k * 4), color: i % 2 && dopo > 0 && Math.floor(dopo / BATT) % 2 ? "var(--giallo)" : "#fff" });
       });
-      const ll = outExpo(p(t, BOTTO, BOTTO + 0.5)) * 820;
-      css($("#s7-linea"), { width: ll + "px", marginLeft: -ll / 2 + "px" });
-      const km = p(t, 16.3, 16.7);
-      css($("#s7-motto"), { opacity: km, transform: `translateY(${(1 - outCubic(km)) * 40}px)` });
-      const kf = outBack(p(t, 16.7, 17.15), 2);
-      css($("#s7-firma"), { opacity: p(t, 16.7, 16.8), transform: `translateY(${(1 - kf) * 200}px) scale(${0.8 + 0.2 * kf})` });
+      const ll = outExpo(p(t, BOTTO, BOTTO + 0.5)) * 720;
+      css($("#s6-linea"), { width: ll + "px", marginLeft: -ll / 2 + "px" });
+      const km = p(t, BOTTO + 0.25, BOTTO + 0.65);
+      css($("#s6-motto"), { opacity: km, transform: `translateY(${(1 - outCubic(km)) * 40}px)` });
+      const kf = outBack(p(t, BOTTO + 0.65, BOTTO + 1.1), 2);
+      css($("#s6-firma"), { opacity: p(t, BOTTO + 0.65, BOTTO + 0.75), transform: `translateY(${(1 - kf) * 200}px) scale(${0.8 + 0.2 * kf})` });
       if (dopo >= 0) flash = Math.max(flash, 0.9 * (1 - p(t, BOTTO, BOTTO + 0.25)));
       const [sx, sy] = shake(t, BOTTO, 0.45, 34);
-      $("#s7").style.transform = `translate(${sx}px, ${sy}px)`;
-      // coriandoli
+      $("#s6").style.transform = `translate(${sx}px, ${sy}px)`;
       CORI.forEach((c) => {
         const dt = t - BOTTO - c.d;
         if (dt < 0) { c.el.style.opacity = 0; return; }
         const drag = 1 - Math.exp(-dt * 2.2);
         const x = 540 + (c.vx / 2.2) * drag;
-        const y = 860 + (c.vy / 2.2) * drag + 520 * dt * dt;
+        const y = 610 + (c.vy / 2.2) * drag + 520 * dt * dt;
         css(c.el, { opacity: 1 - p(dt, 2.2, 2.9), transform: `translate(${x}px, ${y}px) rotate(${c.rot * dt}deg) scaleX(${Math.cos(dt * 9 + c.rot)})` });
       });
     }
@@ -442,7 +447,6 @@
   window.DURATA = DURATA;
   window.render = render;
   if (!/render=0/.test(location.search)) {
-    // anteprima live nel browser
     const t0 = performance.now();
     const loop = () => { render(((performance.now() - t0) / 1000) % DURATA); requestAnimationFrame(loop); };
     document.fonts.ready.then(loop);

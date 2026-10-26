@@ -8,7 +8,7 @@ const path = require("path");
   const args = process.argv.slice(2);
   const browser = await chromium.launch();
   const page = await browser.newPage({ viewport: { width: 1080, height: 1920 } });
-  await page.goto("file://" + path.join(__dirname, "reel.html") + "?render=0");
+  await page.goto("file://" + path.join(__dirname, "reel.html") + "?render=0" + (process.env.GUIDA ? "&guida=1" : ""));
   await page.evaluate(() => document.fonts.ready);
 
   if (args[0] === "--stills") {

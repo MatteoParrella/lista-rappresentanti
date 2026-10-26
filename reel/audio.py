@@ -5,9 +5,10 @@ import wave
 import numpy as np
 
 SR = 48000
-DURATA = 19.0
+DURATA = 18.8
 BATT = 0.4615          # ~130 bpm, uguale a reel.html
-BOTTO = 16.05          # il drop su VAMORAGA
+BOTTO = 15.35          # il drop su VAMORAGA
+TAGLI = [1.9, 4.1, 6.6, 10.3, 12.4, 14.5]  # cambi scena, uguali a reel.html
 rng = np.random.default_rng(3)
 L = np.zeros(int(SR * DURATA))
 R = np.zeros_like(L)
@@ -125,7 +126,7 @@ while True:
     if tb >= 0:
         prima_drop = tb < BOTTO
         pausa = BOTTO - 0.95 < tb < BOTTO       # silenzio prima del drop
-        intro = tb < 2.3
+        intro = tb < 1.9
         if not pausa:
             metti(kick(), tb, 0.55 if prima_drop else 0.8)
             if not intro:
@@ -139,35 +140,37 @@ while True:
     b += 1
 
 # ---------- effetti sincronizzati con reel.html ----------
-metti(boom(1.0), 0.05, 0.5)                       # logo che atterra
-for i in range(9):                                 # lettere di CAPOLISTA
-    metti(pop(500 + i * 60, 0.08), 0.42 + i * 0.045, 0.18, pan=(i - 4) / 6)
-metti(whoosh(0.5), 1.85, 0.5)                       # zoom attraverso il logo
-for i, ts in enumerate([2.3, 3.1, 3.9]):           # domande a raffica
-    metti(boom(0.7), ts + 0.15, 0.55)
-    metti(whoosh(0.25, su=False), ts - 0.05, 0.3)
-for ts in [4.75, 7.6, 11.0, 13.1, 15.2]:           # swipe bianchi
+for i in range(3):                                 # gancio POV: tre righe che sbattono
+    metti(boom(0.6), max(0, i * 0.16 - 0.06), 0.5 if i < 2 else 0.7)
+metti(pop(650), 0.85, 0.4, pan=0.3)                 # bolla "e nessuno fa niente"
+for ts in TAGLI:                                   # swipe bianchi
     metti(whoosh(0.5), ts - 0.25, 0.55)
-for i in range(5):                                 # bolle dei messaggi
-    metti(pop(700 + (i % 2) * 250), 5.2 + i * 0.32, 0.4, pan=-0.4 if i % 2 == 0 else 0.4)
-metti(whoosh(0.45), 7.15, 0.35)                      # bolle che volano via
-metti(whoosh(0.6), 7.75, 0.35)                       # telefono che entra
-for ts in np.concatenate([np.arange(8.75, 9.3, 0.055), np.arange(9.4, 10.0, 0.045)]):
+metti(pop(500, 0.1), 1.95, 0.3)
+metti(riser(0.25) * 0.6, 2.55, 0.5)                 # barra gialla su NESSUNO
+metti(whoosh(0.45, su=False), 2.9, 0.4)             # NESSUNO cade
+metti(boom(1.0), 3.25, 0.8)                         # CAPOLISTA atterra
+metti(pop(900, 0.1), 3.45, 0.2)
+metti(pop(700, 0.12), 4.2, 0.3)                     # titolo bolle
+for i in range(4):                                 # bolle dei messaggi
+    metti(pop(700 + (i % 2) * 250), 4.55 + i * 0.3, 0.4, pan=-0.4 if i % 2 == 0 else 0.4)
+metti(whoosh(0.45), 6.15, 0.35)                     # bolle che volano via
+metti(whoosh(0.6), 6.7, 0.35)                       # telefono che entra
+metti(click(0.05), 7.6, 0.5)
+for ts in np.concatenate([np.arange(7.75, 8.25, 0.05), np.arange(8.35, 8.95, 0.045)]):
     metti(click(), ts + rng.uniform(-0.01, 0.01), 0.35, pan=rng.uniform(-0.3, 0.3))  # digitazione
-metti(click(0.05), 8.6, 0.5)
-metti(pop(300, 0.1), 10.22, 0.5)                    # tap su INVIA
-metti(ding(), 10.36, 0.3)                           # richiesta inviata
-metti(click(0.05), 11.6, 0.9)                       # lucchetto che si chiude
-metti(pop(200, 0.08), 11.6, 0.5)
-metti(boom(1.0), 11.86, 0.7)                        # timbro 100% ANONIMO
+metti(pop(300, 0.1), 9.17, 0.5)                     # tap su INVIA
+metti(ding(), 9.31, 0.3)                            # richiesta inviata
+metti(click(0.05), 10.9, 0.9)                       # lucchetto che si chiude
+metti(pop(200, 0.08), 10.9, 0.5)
+metti(boom(1.0), 11.16, 0.7)                        # timbro 100% ANONIMO
 for i in range(3):
-    metti(pop(1000 + i * 120, 0.07), 12.1 + i * 0.16, 0.15)
+    metti(pop(1000 + i * 120, 0.07), 11.4 + i * 0.16, 0.15)
 for i in range(4):                                 # VOI SCRIVETE NOI AGIAMO
-    metti(whoosh(0.28, su=False), 13.18 + i * 0.22, 0.4, pan=-0.5 if i % 2 == 0 else 0.5)
-metti(pop(600, 0.15), 14.12, 0.45)                  # link
-metti(riser(BOTTO - 15.2), 15.2, 0.45)              # salita verso il drop
+    metti(whoosh(0.28, su=False), 12.48 + i * 0.2, 0.4, pan=-0.5 if i % 2 == 0 else 0.5)
+metti(pop(600, 0.15), 13.37, 0.45)                  # link
+metti(riser(BOTTO - 14.5), 14.5, 0.45)              # salita verso il drop
 for i in range(8):                                 # lettere di VAMORAGA
-    metti(pop(400 + i * 90, 0.1), 15.38 + i * 0.08, 0.3, pan=(i - 3.5) / 5)
+    metti(pop(400 + i * 90, 0.1), 14.58 + i * 0.06, 0.3, pan=(i - 3.5) / 5)
 metti(boom(1.6), BOTTO, 1.0)                        # il botto
 n = rng.standard_normal(int(SR * 1.2))             # coriandoli: crepitio
 metti((n - passabasso(n, 0.4)) * np.exp(-np.arange(len(n)) / SR * 2.5) * (rng.random(len(n)) > 0.985), BOTTO + 0.05, 0.6)
