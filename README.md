@@ -61,6 +61,18 @@ Ogni push sul branch principale aggiorna il sito da solo. La pagina membri è ne
 - Possono filtrare per categoria, cercare per parola ed eliminare spam o messaggi offensivi.
 - Tutte le richieste sono anche nel Google Sheet, comodo per esportarle o stamparle.
 
+## Sicurezza
+
+Il sito non usa un database SQL, quindi la "SQL injection" non è possibile. Sono coperti i rischi equivalenti:
+
+- **Testo pericoloso nelle richieste**: tutto quello che scrivono gli studenti viene mostrato come semplice testo, mai come codice. In più gli header di sicurezza (`vercel.json`) impediscono al browser di eseguire script che non siano i nostri file.
+- **Formule nel foglio**: un testo che inizia con `=`, `+`, `-`, `@` viene salvato con un apostrofo davanti, così Google Sheets non lo esegue.
+- **Password**: viene inviata solo al momento dell'accesso. Il backend risponde con una chiave di sessione valida 4 ore; il browser salva solo quella (e la cancella quando si chiude la scheda). Dopo 8 password sbagliate l'accesso si blocca per 15 minuti per tutti; chi è già dentro resta dentro.
+- **Spam**: massimo 40 richieste ogni 10 minuti per tutto il sito, una richiesta ogni 30 secondi dallo stesso browser, e lo stesso testo inviato due volte entro un'ora viene salvato una volta sola.
+- **Pagina membri**: non viene indicizzata dai motori di ricerca, non viene salvata in cache e non può essere inserita dentro altri siti.
+
+Usate una password lunga (almeno 12 caratteri, meglio una frase) e cambiatela se un membro lascia la lista.
+
 ## Note
 
 - Se modificate `Code.gs`, serve **Esegui il deployment → Gestisci deployment → Modifica → Nuova versione** perché le modifiche vadano online (l'URL resta lo stesso).

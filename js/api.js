@@ -5,6 +5,7 @@
   const DEMO = !API_URL;
   const DEMO_KEY = "capolista_demo_richieste";
   const DEMO_PASSWORD = "demo";
+  const DEMO_TOKEN = "demo".repeat(16);
 
   function nuovoCodice() {
     const caratteri = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
@@ -34,11 +35,16 @@
         scriviDemo(lista);
         return { ok: true };
       }
-      case "lista":
+      case "accedi":
         if (dati.password !== DEMO_PASSWORD) return { ok: false, errore: "Password errata." };
+        return { ok: true, token: DEMO_TOKEN };
+      case "esci":
+        return { ok: true };
+      case "lista":
+        if (dati.token !== DEMO_TOKEN) return { ok: false, errore: "Sessione scaduta: accedi di nuovo." };
         return { ok: true, richieste: lista.slice().reverse() };
       case "elimina":
-        if (dati.password !== DEMO_PASSWORD) return { ok: false, errore: "Password errata." };
+        if (dati.token !== DEMO_TOKEN) return { ok: false, errore: "Sessione scaduta: accedi di nuovo." };
         scriviDemo(lista.filter((x) => x.id !== dati.id));
         return { ok: true };
     }
