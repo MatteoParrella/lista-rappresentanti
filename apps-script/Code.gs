@@ -4,6 +4,8 @@
  *
  * Proprietà dello script (Impostazioni progetto → Proprietà script):
  *   ADMIN_PASSWORD  password dell'area membri (obbligatoria)
+ *   PROXY_SECRET    segreto condiviso con Vercel (variabile d'ambiente con lo stesso nome):
+ *                   gli invii degli studenti sono accettati solo se passano dal sito
  *   INVII_CHIUSI    scrivete "si" per chiudere subito gli invii (es. durante un attacco di spam)
  *
  * Per cancellare in blocco lo spam: scegliete la funzione cancellaSpamDiOggi in alto
@@ -19,8 +21,8 @@ const MAX_CORPO = 20000;          // byte massimi di una richiesta al backend
 const DURATA_SESSIONE = 4 * 3600; // secondi di validità dell'accesso membri
 const MAX_TENTATIVI = 8;          // password sbagliate prima del blocco
 const BLOCCO = 15 * 60;           // secondi di blocco dopo troppi tentativi
-const MAX_INVII = 20;             // richieste massime ogni 10 minuti per tutto il sito
-const MAX_INVII_GIORNO = 150;     // richieste massime al giorno per tutto il sito
+const MAX_PER_IP = 5;             // richieste massime ogni 10 minuti dallo stesso indirizzo IP
+const MAX_INVII_GIORNO = 300;     // tetto di sicurezza al giorno per tutto il sito
 const FUSO = 'Europe/Rome';
 
 function doPost(e) {
@@ -140,7 +142,14 @@ function nuovoCodice() {
 
 function invia(dati) {
   if (dati.sito) return { ok: true }; // bot: finge successo, non salva
-  const chiusi = PropertiesService.getScriptProperties().getProperty('INVII_CHIUSI');
+  const proprieta = PropertiesService.getScriptProperties();
+  const segreto = proprieta.getProperty('PROXY_SECRET');
+  // Senza il segreto giusto l'invio non arriva dal sito ma da qualcuno che chiama lo script direttamente.
+  if (!segreto || typeof dati.segreto !== 'string' || !uguali(dati.segreto, segreto)) {
+    throw new ErroreUtente('Invio non consentito.');
+  }
+  if (typeof dati.impronta !== 'string' || !/^[0-9a-f]{32}$/.test(dati.impronta)) throw new ErroreUtente('Invio non consentito.');
+  const chiusi = proprieta.getProperty('INVII_CHIUSI');
   if (chiusi && /^s/i.test(chiusi)) throw new ErroreUtente('Le richieste sono chiuse per qualche ora. Riprova più tardi.');
   const r = {};
   ['categoria', 'titolo', 'messaggio'].forEach(function (k) {
@@ -157,13 +166,14 @@ function invia(dati) {
   const lock = LockService.getScriptLock();
   lock.waitLock(10000);
   try {
-    const finestra = 'invii_' + Math.floor(Date.now() / 600000);
+    // L'impronta dell'IP resta solo in questa cache per 10 minuti: non finisce mai nel foglio.
+    const finestra = 'ip_' + dati.impronta + '_' + Math.floor(Date.now() / 600000);
     const n = Number(c.get(finestra) || 0);
-    if (n >= MAX_INVII) throw new ErroreUtente('Stiamo ricevendo troppe richieste. Riprova tra qualche minuto.');
+    if (n >= MAX_PER_IP) throw new ErroreUtente('Hai inviato troppe richieste. Riprova tra qualche minuto.');
     const giorno = 'invii_giorno_' + Utilities.formatDate(new Date(), FUSO, 'yyyyMMdd');
     const g = Number(c.get(giorno) || 0);
     if (g >= MAX_INVII_GIORNO) throw new ErroreUtente('Per oggi abbiamo ricevuto troppe richieste. Riprova domani.');
-    c.put(finestra, String(n + 1), 900);
+    c.put(finestra, String(n + 1), 600);
     c.put(giorno, String(g + 1), 25 * 3600);
     c.put(impronta, '1', 3600);
     foglio().appendRow([nuovoCodice(), new Date(), r.categoria, r.titolo, r.messaggio]);

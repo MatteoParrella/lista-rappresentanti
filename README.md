@@ -63,12 +63,16 @@ Ogni push sul branch principale aggiorna il sito da solo. La pagina membri è ne
 
 ## Sicurezza
 
+Configurazione necessaria per gli invii: lo stesso valore segreto in **due posti**
+- Vercel → Settings → Environment Variables → `PROXY_SECRET`
+- Apps Script → Proprietà script → `PROXY_SECRET`
+
 Il sito non usa un database SQL, quindi la "SQL injection" non è possibile. Sono coperti i rischi equivalenti:
 
 - **Testo pericoloso nelle richieste**: tutto quello che scrivono gli studenti viene mostrato come semplice testo, mai come codice. In più gli header di sicurezza (`vercel.json`) impediscono al browser di eseguire script che non siano i nostri file.
 - **Formule nel foglio**: un testo che inizia con `=`, `+`, `-`, `@` viene salvato con un apostrofo davanti, così Google Sheets non lo esegue.
 - **Password**: viene inviata solo al momento dell'accesso. Il backend risponde con una chiave di sessione valida 4 ore; il browser salva solo quella (e la cancella quando si chiude la scheda). Dopo 8 password sbagliate l'accesso si blocca per 15 minuti per tutti; chi è già dentro resta dentro.
-- **Spam**: massimo 20 richieste ogni 10 minuti e 150 al giorno per tutto il sito, una richiesta ogni 30 secondi dallo stesso browser, e lo stesso testo inviato due volte entro un'ora viene salvato una volta sola.
+- **Spam**: massimo 5 richieste ogni 10 minuti dallo stesso indirizzo IP, un tetto di sicurezza di 300 al giorno per tutto il sito, e lo stesso testo inviato due volte entro un'ora viene salvato una volta sola. Gli invii passano da `api/invia.js` su Vercel, che legge l'IP, lo trasforma in un'impronta non reversibile e passa ad Apps Script solo quella: l'impronta resta in memoria 10 minuti e non finisce mai nel foglio. Apps Script accetta invii solo con il segreto `PROXY_SECRET`, quindi non si può aggirare il limite chiamandolo direttamente. Nota: chi usa il Wi-Fi della scuola condivide lo stesso IP.
 - **Pagina membri**: non viene indicizzata dai motori di ricerca, non viene salvata in cache e non può essere inserita dentro altri siti.
 
 **In caso di attacco di spam**
