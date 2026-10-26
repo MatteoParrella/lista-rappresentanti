@@ -72,45 +72,6 @@
 
   <script src="js/config.js"></script>
   <script src="js/api.js"></script>
-  <script>
-    const { chiama, escape } = window.Capolista;
-
-    const form = document.getElementById("form-richiesta");
-    const esito = document.getElementById("esito");
-    function mostra(el, tipo, html) {
-      el.className = "messaggio " + tipo;
-      el.innerHTML = html;
-    }
-
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const dati = {
-        categoria: form.categoria.value,
-        titolo: form.titolo.value.trim(),
-        messaggio: form.messaggio.value.trim(),
-        sito: form.sito.value
-      };
-      if (!dati.categoria || !dati.titolo || !dati.messaggio) {
-        mostra(esito, "errore", "Compila categoria, oggetto e messaggio.");
-        return;
-      }
-      const bottone = document.getElementById("invia");
-      bottone.disabled = true;
-      bottone.textContent = "Invio…";
-      try {
-        const r = await chiama("invia", dati);
-        if (!r.ok) throw new Error(r.errore || "Errore sconosciuto");
-        form.reset();
-        mostra(esito, "ok",
-          "<b>Richiesta inviata, grazie!</b><br>L'abbiamo ricevuta in forma anonima. Puoi inviarne quante vuoi.");
-      } catch (err) {
-        mostra(esito, "errore", "Invio non riuscito: " + escape(err.message) + ". Riprova tra poco.");
-      } finally {
-        bottone.disabled = false;
-        bottone.textContent = "Invia richiesta";
-      }
-    });
-
-  </script>
+  <script src="js/richiesta.js"></script>
 </body>
 </html>
