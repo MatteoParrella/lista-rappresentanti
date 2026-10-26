@@ -19,7 +19,7 @@ const MAX_CORPO = 20000;          // byte massimi di una richiesta al backend
 const DURATA_SESSIONE = 4 * 3600; // secondi di validità dell'accesso membri
 const MAX_TENTATIVI = 8;          // password sbagliate prima del blocco
 const BLOCCO = 15 * 60;           // secondi di blocco dopo troppi tentativi
-const MAX_INVII = 10;             // richieste massime ogni 10 minuti per tutto il sito
+const MAX_INVII = 20;             // richieste massime ogni 10 minuti per tutto il sito
 const MAX_INVII_GIORNO = 150;     // richieste massime al giorno per tutto il sito
 const FUSO = 'Europe/Rome';
 

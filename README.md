@@ -68,7 +68,7 @@ Il sito non usa un database SQL, quindi la "SQL injection" non è possibile. Son
 - **Testo pericoloso nelle richieste**: tutto quello che scrivono gli studenti viene mostrato come semplice testo, mai come codice. In più gli header di sicurezza (`vercel.json`) impediscono al browser di eseguire script che non siano i nostri file.
 - **Formule nel foglio**: un testo che inizia con `=`, `+`, `-`, `@` viene salvato con un apostrofo davanti, così Google Sheets non lo esegue.
 - **Password**: viene inviata solo al momento dell'accesso. Il backend risponde con una chiave di sessione valida 4 ore; il browser salva solo quella (e la cancella quando si chiude la scheda). Dopo 8 password sbagliate l'accesso si blocca per 15 minuti per tutti; chi è già dentro resta dentro.
-- **Spam**: massimo 10 richieste ogni 10 minuti e 150 al giorno per tutto il sito, una richiesta ogni 30 secondi dallo stesso browser, e lo stesso testo inviato due volte entro un'ora viene salvato una volta sola.
+- **Spam**: massimo 20 richieste ogni 10 minuti e 150 al giorno per tutto il sito, una richiesta ogni 30 secondi dallo stesso browser, e lo stesso testo inviato due volte entro un'ora viene salvato una volta sola.
 - **Pagina membri**: non viene indicizzata dai motori di ricerca, non viene salvata in cache e non può essere inserita dentro altri siti.
 
 **In caso di attacco di spam**
