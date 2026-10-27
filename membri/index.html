@@ -49,11 +49,40 @@
         <button class="btn piccolo secondario" id="esci">Esci</button>
       </div>
       <div id="lista"></div>
+
+      <section class="card" id="sezione-circolari">
+        <h2>Circolari</h2>
+        <p class="desc">Pubblica una circolare nella scheda Circolari dell'app. L'AI la riassume in 3 righe e la usa per rispondere nella chat.</p>
+        <form id="form-circolare" novalidate>
+          <div class="riga">
+            <div>
+              <label for="circ-numero">Numero <span class="opz">(facoltativo)</span></label>
+              <input type="text" id="circ-numero" maxlength="20" placeholder="Es. 45">
+            </div>
+            <div>
+              <label for="circ-link">Link all'originale <span class="opz">(facoltativo)</span></label>
+              <input type="text" id="circ-link" maxlength="500" placeholder="https://…">
+            </div>
+          </div>
+          <label for="circ-titolo">Titolo</label>
+          <input type="text" id="circ-titolo" maxlength="150" placeholder="Es. Assemblea d'istituto di novembre" required>
+          <label for="circ-testo">Testo completo <span class="opz">(copialo dal PDF)</span></label>
+          <textarea id="circ-testo" maxlength="40000" placeholder="Incolla qui il testo della circolare…"></textarea>
+          <button class="btn piccolo secondario" type="button" id="circ-riassumi">Riassumi con l'AI</button>
+          <label for="circ-riassunto">Riassunto in 3 righe</label>
+          <textarea id="circ-riassunto" maxlength="600" placeholder="Scrivilo tu o premi &quot;Riassumi con l'AI&quot; e correggilo se serve." required></textarea>
+          <button class="btn" type="submit" id="circ-pubblica">Pubblica</button>
+          <div class="messaggio" id="esito-circolare" role="status"></div>
+        </form>
+        <div id="lista-circolari-membri"></div>
+      </section>
+
+      <p class="desc">Gli ordini del panino di oggi sono nella <a href="/paninaro">pagina del paninaro</a> (da qui entrate senza password).</p>
     </section>
   </main>
 
   <footer class="wrap">
-    <a href="/">← Pagina richieste</a>
+    <a href="/">← Torna all'app</a>
     <p class="crediti">Powered by Matteo Parrella</p>
   </footer>
 

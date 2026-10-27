@@ -1,5 +1,9 @@
 {
   "trailingSlash": false,
+  "functions": {
+    "api/chat.js": { "includeFiles": "dati/**", "maxDuration": 30 },
+    "api/riassumi.js": { "maxDuration": 60 }
+  },
   "redirects": [
     { "source": "/admin", "destination": "/membri", "permanent": true },
     { "source": "/admin.html", "destination": "/membri", "permanent": true }
@@ -22,6 +26,13 @@
     },
     {
       "source": "/membri(.*)",
+      "headers": [
+        { "key": "X-Robots-Tag", "value": "noindex, nofollow" },
+        { "key": "Cache-Control", "value": "no-store" }
+      ]
+    },
+    {
+      "source": "/paninaro(.*)",
       "headers": [
         { "key": "X-Robots-Tag", "value": "noindex, nofollow" },
         { "key": "Cache-Control", "value": "no-store" }

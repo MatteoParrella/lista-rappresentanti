@@ -113,6 +113,7 @@ function sessioneScaduta(err) {
 async function apriPannello(t) {
   token = t;
   await carica();
+  caricaCircolari().catch(() => {});
   salvaToken(t);
   $("login").hidden = true;
   $("pannello").hidden = false;
@@ -130,6 +131,82 @@ $("form-login").addEventListener("submit", async (e) => {
   } catch (err) {
     esito.className = "messaggio errore";
     esito.textContent = err.message || "Accesso non riuscito.";
+  }
+});
+
+/* ---------- Circolari ---------- */
+
+async function caricaCircolari() {
+  const r = await chiama("circolari");
+  if (!r.ok) throw new Error(r.errore);
+  $("lista-circolari-membri").innerHTML = r.circolari.length
+    ? "<h3>Pubblicate</h3>" + r.circolari.map((c) =>
+        '<div class="circolare-membri" data-id="' + escape(c.id) + '"><span>' +
+        (c.numero ? "n. " + escape(c.numero) + " · " : "") + escape(c.titolo) +
+        '</span><button class="elimina" type="button">Elimina</button></div>').join("")
+    : "";
+}
+
+function esitoCircolare(tipo, testo) {
+  $("esito-circolare").className = "messaggio " + tipo;
+  $("esito-circolare").textContent = testo;
+}
+
+$("circ-riassumi").addEventListener("click", async (e) => {
+  const b = e.target;
+  b.disabled = true;
+  b.textContent = "Sto riassumendo…";
+  try {
+    const r = await chiama("riassumi", { token, testo: $("circ-testo").value });
+    if (!r.ok) throw new Error(r.errore);
+    $("circ-riassunto").value = r.riassunto;
+    esitoCircolare("ok", "Riassunto pronto: controllalo e poi premi Pubblica.");
+  } catch (err) {
+    if (!sessioneScaduta(err)) esitoCircolare("errore", err.message);
+  } finally {
+    b.disabled = false;
+    b.textContent = "Riassumi con l'AI";
+  }
+});
+
+$("form-circolare").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const dati = {
+    token,
+    numero: $("circ-numero").value.trim(),
+    link: $("circ-link").value.trim(),
+    titolo: $("circ-titolo").value.trim(),
+    testo: $("circ-testo").value.trim(),
+    riassunto: $("circ-riassunto").value.trim()
+  };
+  if (!dati.titolo || !dati.riassunto) return esitoCircolare("errore", "Servono almeno titolo e riassunto.");
+  if (dati.link && !/^https:\/\//.test(dati.link)) return esitoCircolare("errore", "Il link deve iniziare con https://");
+  $("circ-pubblica").disabled = true;
+  try {
+    const r = await chiama("aggiungiCircolare", dati);
+    if (!r.ok) throw new Error(r.errore);
+    $("form-circolare").reset();
+    esitoCircolare("ok", "Circolare pubblicata.");
+    await caricaCircolari();
+  } catch (err) {
+    if (!sessioneScaduta(err)) esitoCircolare("errore", "Pubblicazione non riuscita: " + err.message);
+  } finally {
+    $("circ-pubblica").disabled = false;
+  }
+});
+
+$("lista-circolari-membri").addEventListener("click", async (e) => {
+  if (!e.target.classList.contains("elimina")) return;
+  if (!confirm("Eliminare questa circolare dall'app?")) return;
+  const id = e.target.closest(".circolare-membri").dataset.id;
+  e.target.disabled = true;
+  try {
+    const r = await chiama("eliminaCircolare", { token, id });
+    if (!r.ok) throw new Error(r.errore);
+    await caricaCircolari();
+  } catch (err) {
+    if (!sessioneScaduta(err)) alert("Eliminazione non riuscita: " + err.message);
+    e.target.disabled = false;
   }
 });
 

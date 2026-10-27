@@ -36,6 +36,7 @@
         return { ok: true };
       }
       case "accedi":
+      case "accediPaninaro":
         if (dati.password !== DEMO_PASSWORD) return { ok: false, errore: "Password errata." };
         return { ok: true, token: DEMO_TOKEN };
       case "esci":
@@ -47,21 +48,58 @@
         if (dati.token !== DEMO_TOKEN) return { ok: false, errore: "Sessione scaduta: accedi di nuovo." };
         scriviDemo(lista.filter((x) => x.id !== dati.id));
         return { ok: true };
+      case "circolari":
+        return { ok: true, circolari: DEMO_CIRCOLARI };
+      case "aggiungiCircolare":
+      case "eliminaCircolare":
+        return { ok: true };
+      case "ordiniOggi":
+        return { ok: true, giorno: new Date().toISOString().slice(0, 10), oraLimite: "10:00", totale: 6.5,
+          prodotti: [{ prodotto: "Focaccia", quantita: 1 }, { prodotto: "Panino salame", quantita: 2 }],
+          classi: [{ classe: "3B", totale: 6.5, ordini: [
+            { codice: "K7QM", nome: "Gio", prodotti: ["2× Panino salame"], totale: 5 },
+            { codice: "P2XA", nome: "", prodotti: ["1× Focaccia"], totale: 1.5 }] }] };
+      case "menu":
+        return { ok: true, menu: DEMO_MENU, classi: ["1A", "1B", "2A", "3B", "4C", "5A"], aperto: true, motivo: "", oraLimite: "10:00" };
+      case "ordina":
+        return { ok: true, codice: "DEMO", totale: 0, riepilogo: dati.prodotti.map((p) => p.quantita + "× " + p.prodotto) };
+      case "riassumi":
+        return { ok: true, riassunto: "Riga 1 del riassunto di esempio.\nRiga 2 del riassunto di esempio.\nRiga 3 del riassunto di esempio." };
+      case "chat":
+        return { ok: true, risposta: "Modalità demo: qui risponderà l'AI leggendo regolamento e circolari." };
     }
     return { ok: false, errore: "Azione sconosciuta." };
   }
 
+  // Esempi per provare il sito senza backend (modalità demo).
+  const DEMO_CIRCOLARI = [
+    { id: "C1", data: new Date().toISOString(), numero: "45", titolo: "Assemblea d'istituto di novembre", link: "",
+      riassunto: "Venerdì 14 novembre c'è l'assemblea d'istituto in palestra.\nLe lezioni finiscono alle 10:00 per tutte le classi.\nServe la firma dei genitori per uscire prima." }
+  ];
+  const DEMO_MENU = [
+    { prodotto: "Panino cotto e fontina", prezzo: 2.5 },
+    { prodotto: "Panino salame", prezzo: 2.5 },
+    { prodotto: "Focaccia", prezzo: 1.5 }
+  ];
+
+  // Azioni degli studenti che passano da Vercel (che conosce l'IP per i limiti anti-spam).
+  const SU_VERCEL = { invia: "/api/invia", ordina: "/api/ordina", chat: "/api/chat", riassumi: "/api/riassumi" };
+
   async function chiama(azione, dati) {
     dati = dati || {};
     if (DEMO) return demo(azione, dati);
-    // Gli invii passano da /api/invia (Vercel), che conosce l'IP per i limiti anti-spam.
     // Content-Type text/plain evita il preflight CORS, che Apps Script non gestisce.
-    const risposta = await fetch(azione === "invia" ? "/api/invia" : API_URL, {
+    const risposta = await fetch(SU_VERCEL[azione] || API_URL, {
       method: "POST",
       headers: { "Content-Type": "text/plain;charset=utf-8" },
       body: JSON.stringify(Object.assign({ azione: azione }, dati))
     });
-    if (!risposta.ok) throw new Error("Errore di rete (" + risposta.status + ")");
+    if (!risposta.ok) {
+      // Le funzioni di Vercel spiegano l'errore nel JSON anche quando lo stato non è 200.
+      const spiegazione = await risposta.json().catch(() => null);
+      if (spiegazione && spiegazione.errore) return spiegazione;
+      throw new Error("Errore di rete (" + risposta.status + ")");
+    }
     return risposta.json();
   }
 
@@ -77,8 +115,11 @@
     return d.toLocaleString("it-IT", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" });
   }
 
+  function euro(n) {
+    return Number(n || 0).toLocaleString("it-IT", { style: "currency", currency: "EUR" });
+  }
 
-  window.Capolista = { chiama, escape, formattaData, DEMO };
+  window.Capolista = { chiama, escape, formattaData, euro, DEMO };
 
   if (DEMO) {
     document.addEventListener("DOMContentLoaded", function () {

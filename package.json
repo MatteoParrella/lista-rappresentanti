@@ -1,0 +1,8 @@
+{
+  "name": "capolista",
+  "private": true,
+  "description": "App della scuola della lista Capolista: chat AI, circolari, panino e richieste anonime.",
+  "dependencies": {
+    "@anthropic-ai/sdk": "1.3.0"
+  }
+}

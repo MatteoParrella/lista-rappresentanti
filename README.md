@@ -1,14 +1,24 @@
-# Capolista – Sito richieste
+# Capolista – L'app della scuola
 
-Sito della lista **Capolista** (rappresentanti d'istituto, Villa Greppi) dove gli studenti inviano richieste **anonime** e i membri della lista vedono cosa chiede la scuola.
+App della lista **Capolista** (rappresentanti d'istituto, Villa Greppi): una sola pagina con quattro schede.
 
-- `index.html` → **link per gli studenti** (`https://<progetto>.vercel.app/`) – pagina per gli studenti: modulo richiesta anonimo (niente nome, classe o contatti).
-- `membri/index.html` → **link per i membri** (`https://<progetto>.vercel.app/membri`) – area protetta da password: classifica delle categorie più richieste, elenco, filtri, ricerca.
-- `apps-script/Code.gs` – backend gratuito su Google Apps Script; le richieste finiscono in un Google Sheet.
+| Scheda | Cosa fa |
+| --- | --- |
+| **Chiedi** | Chat con l'AI che risponde su regolamento d'istituto e circolari. Le domande non vengono salvate. |
+| **Circolari** | Le circolari riassunte in 3 righe, con il link all'originale. |
+| **Panino** | Ordine del panino entro le 10:00, consegna in classe a ricreazione, pagamento in contanti. |
+| **Richieste** | Richieste **anonime** ai rappresentanti (niente nome, classe o contatti). Link diretto: `/#richieste`. |
 
-Costo: **0 €**. Sito su Vercel, dati su Google Sheets.
+- `index.html` → **link per gli studenti** (`https://<progetto>.vercel.app/`).
+- `membri/index.html` → **link per i membri** (`/membri`): richieste, classifica categorie e pubblicazione delle circolari.
+- `paninaro/index.html` → **link per il paninaro** (`/paninaro`): ordini di oggi divisi per classe, da stampare.
+- `apps-script/Code.gs` – backend gratuito su Google Apps Script; i dati finiscono in un Google Sheet.
+- `api/` – funzioni di Vercel: passaggio anti-spam (`invia`, `ordina`), chat AI (`chat`) e riassunti (`riassumi`).
+- `dati/regolamento.md` – testo del regolamento d'istituto letto dalla chat AI.
 
-I due link sono separati: la pagina studenti non contiene nessun collegamento all'area membri.
+Costo: sito e dati **0 €** (Vercel + Google Sheets). La chat AI usa Claude di Anthropic: si paga a consumo (vedi sotto).
+
+I link sono separati: la pagina studenti non contiene nessun collegamento all'area membri o al paninaro.
 
 ## Provarlo subito
 
@@ -54,6 +64,31 @@ Avrete due link:
 
 Ogni push sul branch principale aggiorna il sito da solo. La pagina membri è nella cartella `membri/`, quindi il link funziona senza configurazioni speciali.
 
+## App della scuola: cosa configurare
+
+Oltre a `ADMIN_PASSWORD` e `PROXY_SECRET`:
+
+| Dove | Nome | A cosa serve |
+| --- | --- | --- |
+| Apps Script → Proprietà script | `PANINARO_PASSWORD` | Password della pagina `/paninaro` (i membri entrano dalla loro area senza password) |
+| Apps Script → Proprietà script | `CLASSI` | Elenco classi separate da virgola, es. `1A,1B,2A,…` (se manca: da 1A a 5E) |
+| Apps Script → Proprietà script | `ORDINI_CHIUSI` | `si` per chiudere gli ordini del panino (es. paninaro assente) |
+| Apps Script → Proprietà script | `CHAT_CHIUSA` | `si` per spegnere la chat AI |
+| Vercel → Environment Variables | `ANTHROPIC_API_KEY` | Chiave di [console.anthropic.com](https://console.anthropic.com) per chat e riassunti. Senza, la chat dice "non ancora attiva" |
+| Vercel → Environment Variables | `CLAUDE_MODEL` | Facoltativo. Di base `claude-opus-5-5`; con `claude-haiku-5-5` costa molto meno |
+
+**Menù del paninaro**: si modifica direttamente nel foglio **Menu** del Google Sheet (prodotto, prezzo, disponibile `si`/`no`). Il foglio si crea da solo con prodotti di esempio la prima volta che qualcuno apre la scheda Panino. L'ora limite (10:00) e i giorni (lunedì–sabato) sono in cima a `Code.gs`.
+
+**Circolari**: in `/membri`, sezione Circolari, incollate il testo dal PDF, premete **Riassumi con l'AI**, controllate le 3 righe e premete **Pubblica**.
+
+**Regolamento**: il testo va in `dati/regolamento.md`. Finché c'è la riga `<!-- ESEMPIO -->` la chat non lo usa.
+
+**Costi della chat AI**: si paga solo quello che si usa, con un tetto di sicurezza di 500 domande al giorno (`MAX_CHAT_GIORNO` in `Code.gs`). Su [console.anthropic.com](https://console.anthropic.com) impostate anche un limite di spesa mensile.
+
+**Privacy**: le domande alla chat vanno solo ad Anthropic per la risposta e non vengono salvate. Per gli ordini salviamo classe, nome facoltativo e prodotti; vengono cancellati dopo 14 giorni. Nessun IP viene mai salvato.
+
+**Ordine di rilascio** (importante): prima il nuovo `Code.gs` in Apps Script (**Gestisci deployment → Modifica → Nuova versione**), poi le variabili su Vercel, poi il merge su GitHub.
+
 ## Come la usano i membri
 
 - Vanno su `/membri`, inseriscono la password e vedono tutte le richieste.
@@ -72,7 +107,7 @@ Il sito non usa un database SQL, quindi la "SQL injection" non è possibile. Son
 - **Testo pericoloso nelle richieste**: tutto quello che scrivono gli studenti viene mostrato come semplice testo, mai come codice. In più gli header di sicurezza (`vercel.json`) impediscono al browser di eseguire script che non siano i nostri file.
 - **Formule nel foglio**: un testo che inizia con `=`, `+`, `-`, `@` viene salvato con un apostrofo davanti, così Google Sheets non lo esegue.
 - **Password**: viene inviata solo al momento dell'accesso. Il backend risponde con una chiave di sessione valida 4 ore; il browser salva solo quella (e la cancella quando si chiude la scheda). Dopo 8 password sbagliate l'accesso si blocca per 15 minuti per tutti; chi è già dentro resta dentro.
-- **Spam**: massimo 5 richieste ogni 10 minuti dallo stesso indirizzo IP, un tetto di sicurezza di 300 al giorno per tutto il sito, e lo stesso testo inviato due volte entro un'ora viene salvato una volta sola. Gli invii passano da `api/invia.js` su Vercel, che legge l'IP, lo trasforma in un'impronta non reversibile e passa ad Apps Script solo quella: l'impronta resta in memoria 10 minuti e non finisce mai nel foglio. Apps Script accetta invii solo con il segreto `PROXY_SECRET`, quindi non si può aggirare il limite chiamandolo direttamente. Nota: chi usa il Wi-Fi della scuola condivide lo stesso IP.
+- **Spam**: per le richieste massimo 5 ogni 10 minuti dallo stesso indirizzo IP, un tetto di sicurezza di 300 al giorno per tutto il sito, e lo stesso testo inviato due volte entro un'ora viene salvato una volta sola. Gli invii passano da `api/invia.js` su Vercel, che legge l'IP, lo trasforma in un'impronta non reversibile e passa ad Apps Script solo quella: l'impronta resta in memoria 10 minuti e non finisce mai nel foglio. Apps Script accetta invii solo con il segreto `PROXY_SECRET`, quindi non si può aggirare il limite chiamandolo direttamente. Ordini del panino (60 ogni 10 minuti, 800 al giorno) e domande alla chat (40 ogni 10 minuti, 500 al giorno) passano allo stesso modo da `api/ordina.js` e `api/chat.js`. Nota: chi usa il Wi-Fi della scuola condivide lo stesso IP.
 - **Pagina membri**: non viene indicizzata dai motori di ricerca, non viene salvata in cache e non può essere inserita dentro altri siti.
 
 **In caso di attacco di spam**
