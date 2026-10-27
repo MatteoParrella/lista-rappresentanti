@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Capolista – Ordini panino</title>
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#13307a">
+  <link rel="icon" href="/assets/villa.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Oswald:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/style.css">
+</head>
+<body>
+  <header class="wrap hero">
+    <img class="villa" src="/assets/villa.svg" alt="Villa Greppi">
+    <div class="divisore"></div>
+    <div class="marchio">
+      <h1>CAPOLISTA</h1>
+      <div class="linea"></div>
+      <div class="sotto">Ordini del panino</div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="card" id="login">
+      <h2>Accedi</h2>
+      <p class="desc">Pagina per il paninaro: qui trovi gli ordini di oggi divisi per classe.</p>
+      <form id="form-login">
+        <label for="password">Password</label>
+        <input type="password" id="password" autocomplete="current-password" required>
+        <button class="btn" type="submit">Entra</button>
+        <div class="messaggio" id="esito-login" role="status"></div>
+      </form>
+    </section>
+
+    <section id="pannello" hidden>
+      <div class="toolbar">
+        <button class="btn piccolo secondario" id="aggiorna">↻ Aggiorna</button>
+        <button class="btn piccolo secondario" id="stampa">Stampa</button>
+        <button class="btn piccolo secondario" id="esci">Esci</button>
+      </div>
+      <div class="stats" id="stats"></div>
+      <section class="card">
+        <h2>Da preparare</h2>
+        <p class="desc" id="giorno"></p>
+        <div class="riepilogo-prodotti" id="prodotti"></div>
+      </section>
+      <div id="classi"></div>
+    </section>
+  </main>
+
+  <footer class="wrap">
+    <p class="crediti">Powered by Matteo Parrella</p>
+  </footer>
+
+  <script src="/js/config.js"></script>
+  <script src="/js/api.js"></script>
+  <script src="/js/paninaro.js"></script>
+</body>
+</html>

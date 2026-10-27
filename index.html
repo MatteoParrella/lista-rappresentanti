@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Capolista – Richieste</title>
-  <meta name="description" content="Fai una richiesta ai rappresentanti d'istituto di Villa Greppi – lista Capolista.">
+  <title>Capolista – App della scuola</title>
+  <meta name="description" content="L'app della scuola di Villa Greppi della lista Capolista: chiedi all'AI, circolari riassunte, ordina il panino e fai richieste anonime ai rappresentanti.">
   <meta name="theme-color" content="#13307a">
   <link rel="icon" href="assets/villa.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -12,57 +12,128 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Oswald:wght@500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/style.css">
 </head>
-<body>
+<body class="con-schede">
   <header class="wrap hero">
     <img class="villa" src="assets/villa.svg" alt="Villa Greppi">
     <div class="divisore"></div>
     <div class="marchio">
       <h1>CAPOLISTA</h1>
       <div class="linea"></div>
-      <div class="sotto">Rappresentanti d'istituto</div>
+      <div class="sotto">L'app della scuola</div>
     </div>
   </header>
 
   <main class="wrap">
-    <p class="motto">In testa per il vostro futuro. Scrivici: leggiamo tutto.</p>
-
-    <section class="card">
-      <h2>Fai una richiesta</h2>
-      <p class="desc">Proposte, problemi, idee per eventi o qualsiasi cosa vuoi che portiamo avanti.</p>
-      <div class="anonimo">
-        <div><b>Le richieste sono anonime.</b> Non chiediamo nome, classe o contatti e non salviamo chi le invia: noi leggiamo solo il testo. Evita di scrivere dati personali nel messaggio se vuoi restare anonimo.</div>
-      </div>
-
-      <form id="form-richiesta" novalidate>
-        <label for="categoria">Categoria</label>
-        <select id="categoria" name="categoria" required>
-          <option value="">Scegli…</option>
-          <option>Didattica</option>
-          <option>Strutture e spazi</option>
-          <option>Eventi e attività</option>
-          <option>Assemblee</option>
-          <option>Proposta</option>
-          <option>Segnalazione problema</option>
-          <option>Altro</option>
-        </select>
-
-        <label for="titolo">Oggetto</label>
-        <input type="text" id="titolo" name="titolo" maxlength="120" placeholder="Es. Distributori rotti al secondo piano" required>
-
-        <label for="messaggio">Messaggio</label>
-        <textarea id="messaggio" name="messaggio" maxlength="3000" placeholder="Spiegaci tutto nel dettaglio…" required></textarea>
-
-        <!-- campo trappola per i bot: gli umani non lo vedono -->
-        <div class="hp" aria-hidden="true">
-          <label for="sito">Lascia vuoto</label>
-          <input type="text" id="sito" name="sito" tabindex="-1" autocomplete="off">
+    <!-- ===== Chiedi all'AI ===== -->
+    <section class="pannello" id="chat" hidden>
+      <section class="card">
+        <h2>Chiedi all'AI</h2>
+        <p class="desc">Fai una domanda su regolamento d'istituto e circolari: l'AI risponde leggendo i documenti ufficiali.</p>
+        <div class="anonimo">
+          <div><b>Le domande non vengono salvate.</b> Non chiediamo chi sei. L'AI può sbagliare: per le cose importanti controlla il documento originale.</div>
         </div>
 
-        <button class="btn" type="submit" id="invia">Invia richiesta</button>
-        <div class="messaggio" id="esito" role="status"></div>
-      </form>
+        <div class="chat-log" id="chat-log" aria-live="polite">
+          <div class="suggerimenti" id="suggerimenti">
+            <button type="button" class="chip">Quante assenze posso fare?</button>
+            <button type="button" class="chip">Posso uscire prima da scuola?</button>
+            <button type="button" class="chip">Cosa dice l'ultima circolare?</button>
+          </div>
+        </div>
+
+        <form id="form-chat" class="chat-form" autocomplete="off">
+          <label for="domanda" class="nascosto">La tua domanda</label>
+          <input type="text" id="domanda" maxlength="500" placeholder="Scrivi la tua domanda…" required>
+          <button class="btn invia-chat" type="submit" id="invia-chat">Chiedi</button>
+        </form>
+      </section>
     </section>
 
+    <!-- ===== Circolari ===== -->
+    <section class="pannello" id="circolari" hidden>
+      <section class="card">
+        <h2>Circolari</h2>
+        <p class="desc">Le circolari della scuola riassunte in 3 righe. Tocca "Leggi tutta" per l'originale.</p>
+        <input type="text" id="cerca-circolari" placeholder="Cerca una circolare…" aria-label="Cerca una circolare">
+      </section>
+      <div id="lista-circolari"><p class="vuoto">Caricamento…</p></div>
+    </section>
+
+    <!-- ===== Panino ===== -->
+    <section class="pannello" id="panino" hidden>
+      <section class="card">
+        <h2>Ordina il panino</h2>
+        <p class="desc">Ordina entro le <b class="ora-limite">10:00</b>: il paninaro lo porta nella tua classe a ricreazione. Paghi in contanti alla consegna.</p>
+        <div class="messaggio" id="stato-panino" role="status"></div>
+
+        <form id="form-panino" novalidate hidden>
+          <div class="riga">
+            <div>
+              <label for="classe">Classe</label>
+              <select id="classe" required><option value="">Scegli…</option></select>
+            </div>
+            <div>
+              <label for="nome-panino">Nome o soprannome <span class="opz">(facoltativo)</span></label>
+              <input type="text" id="nome-panino" maxlength="30" placeholder="Per riconoscere il tuo panino">
+            </div>
+          </div>
+
+          <label>Cosa vuoi?</label>
+          <div id="menu" class="menu"></div>
+
+          <div class="hp" aria-hidden="true">
+            <label for="sito-panino">Lascia vuoto</label>
+            <input type="text" id="sito-panino" tabindex="-1" autocomplete="off">
+          </div>
+
+          <div class="totale">Totale: <b id="totale-panino">0,00 €</b></div>
+          <button class="btn" type="submit" id="invia-panino">Ordina</button>
+          <p class="nota">Salviamo solo classe, nome (se lo scrivi) e cosa hai ordinato, per 14 giorni. Niente IP né altri dati.</p>
+        </form>
+        <div class="messaggio" id="esito-panino" role="status"></div>
+      </section>
+    </section>
+
+    <!-- ===== Richieste anonime ===== -->
+    <section class="pannello" id="richieste" hidden>
+      <p class="motto">In testa per il vostro futuro. Scrivici: leggiamo tutto.</p>
+      <section class="card">
+        <h2>Fai una richiesta</h2>
+        <p class="desc">Proposte, problemi, idee per eventi o qualsiasi cosa vuoi che portiamo avanti.</p>
+        <div class="anonimo">
+          <div><b>Le richieste sono anonime.</b> Non chiediamo nome, classe o contatti e non salviamo chi le invia: noi leggiamo solo il testo. Evita di scrivere dati personali nel messaggio se vuoi restare anonimo.</div>
+        </div>
+
+        <form id="form-richiesta" novalidate>
+          <label for="categoria">Categoria</label>
+          <select id="categoria" name="categoria" required>
+            <option value="">Scegli…</option>
+            <option>Didattica</option>
+            <option>Strutture e spazi</option>
+            <option>Eventi e attività</option>
+            <option>Assemblee</option>
+            <option>Proposta</option>
+            <option>Segnalazione problema</option>
+            <option>Altro</option>
+          </select>
+
+          <label for="titolo">Oggetto</label>
+          <input type="text" id="titolo" name="titolo" maxlength="120" placeholder="Es. Distributori rotti al secondo piano" required>
+
+          <label for="messaggio">Messaggio</label>
+          <textarea id="messaggio" name="messaggio" maxlength="3000" placeholder="Spiegaci tutto nel dettaglio…" required></textarea>
+
+          <!-- campo trappola per i bot: gli umani non lo vedono -->
+          <div class="hp" aria-hidden="true">
+            <label for="sito">Lascia vuoto</label>
+            <input type="text" id="sito" name="sito" tabindex="-1" autocomplete="off">
+          </div>
+
+          <button class="btn" type="submit" id="invia">Invia richiesta</button>
+          <div class="messaggio" id="esito" role="status"></div>
+        </form>
+      </section>
+    </section>
   </main>
 
   <footer class="wrap">
@@ -70,8 +141,31 @@
     <p class="crediti">Powered by Matteo Parrella</p>
   </footer>
 
+  <nav class="schede" aria-label="Sezioni">
+    <a href="#chat" data-scheda="chat">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 9h8M8 12h5"/></svg>
+      <span>Chiedi</span>
+    </a>
+    <a href="#circolari" data-scheda="circolari">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 12h7M9 16h7"/></svg>
+      <span>Circolari</span>
+    </a>
+    <a href="#panino" data-scheda="panino">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10c0-3 3.6-5 8-5s8 2 8 5z"/><path d="M3 13h18M4 16h16c0 2-1.5 3-3 3H7c-1.5 0-3-1-3-3z"/></svg>
+      <span>Panino</span>
+    </a>
+    <a href="#richieste" data-scheda="richieste">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16v12H4z"/><path d="M4 7l8 6 8-6"/></svg>
+      <span>Richieste</span>
+    </a>
+  </nav>
+
   <script src="js/config.js"></script>
   <script src="js/api.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/chat.js"></script>
+  <script src="js/circolari.js"></script>
+  <script src="js/panino.js"></script>
   <script src="js/richiesta.js"></script>
   <!-- Vercel Web Analytics: conta le visite senza cookie e senza dati personali -->
   <script defer src="/_vercel/insights/script.js"></script>

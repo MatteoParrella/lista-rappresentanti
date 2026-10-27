@@ -240,3 +240,139 @@ footer {
 }
 footer a { color: var(--bianco); }
 .crediti { margin: 14px 0 0; font-size: 0.65rem; opacity: 0.6; }
+
+/* ---------- App: schede in basso ---------- */
+body.con-schede { padding-bottom: calc(76px + env(safe-area-inset-bottom)); }
+body.con-schede .hero { padding: 28px 0 20px; }
+body.con-schede .hero .villa { width: 110px; }
+body.con-schede .marchio h1 { font-size: clamp(2.2rem, 8vw, 3.2rem); }
+
+.schede {
+  position: fixed;
+  left: 0; right: 0; bottom: 0;
+  z-index: 10;
+  display: flex;
+  justify-content: center;
+  background: var(--blu-scuro);
+  border-top: 1px solid var(--bordo);
+  padding: 6px 8px calc(6px + env(safe-area-inset-bottom));
+}
+.schede a {
+  flex: 1;
+  max-width: 160px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 6px 4px;
+  border-radius: 10px;
+  color: var(--grigio);
+  text-decoration: none;
+  font-family: "Oswald", sans-serif;
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.schede a svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.schede a.attiva { color: var(--bianco); background: rgba(255, 255, 255, 0.12); }
+
+.nascosto { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+
+/* ---------- Chat ---------- */
+.chat-log {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 180px;
+  max-height: 55vh;
+  overflow-y: auto;
+  margin: 16px 0 12px;
+  padding: 4px 2px;
+}
+.bolla {
+  max-width: 88%;
+  padding: 10px 14px;
+  border-radius: 14px;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+.bolla.utente { align-self: flex-end; background: var(--bianco); color: var(--blu); border-bottom-right-radius: 4px; }
+.bolla.ai { align-self: flex-start; background: rgba(0, 0, 0, 0.22); border: 1px solid var(--bordo); border-bottom-left-radius: 4px; }
+.bolla.attesa { color: var(--grigio); font-style: italic; }
+.bolla.errore { border-color: var(--rosso); background: rgba(206, 43, 55, 0.25); }
+.suggerimenti { display: flex; flex-wrap: wrap; gap: 8px; margin: auto 0 0; }
+.chip {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--bordo);
+  color: var(--bianco);
+  border-radius: 999px;
+  padding: 8px 14px;
+  font: inherit;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+.chip:hover { background: rgba(255, 255, 255, 0.2); }
+.chat-form { display: flex; gap: 8px; }
+.chat-form input { flex: 1; min-width: 0; }
+.chat-form .btn { margin-top: 0; padding: 12px 18px; }
+
+/* ---------- Circolari ---------- */
+#cerca-circolari { margin-top: 4px; }
+.circolare { border-left: 4px solid var(--bianco); }
+.circolare h3 { margin: 4px 0 10px; font-size: 1.15rem; }
+.circolare .meta { color: var(--grigio); font-size: 0.85rem; }
+.circolare .corpo { white-space: pre-wrap; word-wrap: break-word; }
+.circolare .leggi { display: inline-block; margin-top: 12px; font-weight: 600; }
+
+/* ---------- Panino ---------- */
+.menu { display: flex; flex-direction: column; gap: 8px; }
+.prodotto {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--bordo);
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.18);
+}
+.prodotto.scelto { border-color: var(--bianco); background: rgba(255, 255, 255, 0.12); }
+.prodotto .nome { font-weight: 600; }
+.prodotto .prezzo { display: block; font-weight: 400; color: var(--grigio); font-size: 0.9rem; }
+.passo { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+.passo button {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--bianco);
+  background: transparent;
+  color: var(--bianco);
+  font-size: 1.3rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.passo .piu { background: var(--bianco); color: var(--blu); }
+.passo .q { min-width: 1.5em; text-align: center; font-family: "Oswald", sans-serif; font-size: 1.2rem; }
+.totale { margin-top: 16px; font-size: 1.1rem; }
+.totale b { font-family: "Oswald", sans-serif; font-size: 1.4rem; }
+.nota { color: var(--grigio); font-size: 0.85rem; margin: 12px 0 0; }
+
+/* ---------- Pagina paninaro ---------- */
+.classe-ordini h3 { margin: 0; font-family: "Oswald", sans-serif; font-size: 1.6rem; }
+.classe-ordini .testa { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+.classe-ordini ul { margin: 10px 0 0; padding: 0; list-style: none; }
+.classe-ordini li { padding: 8px 0; border-top: 1px solid var(--bordo); }
+.classe-ordini li .chi { color: var(--grigio); font-size: 0.85rem; }
+.riepilogo-prodotti { display: grid; grid-template-columns: 1fr auto; gap: 6px 16px; }
+.riepilogo-prodotti b { font-family: "Oswald", sans-serif; font-size: 1.2rem; text-align: right; }
+
+/* ---------- Area membri: circolari ---------- */
+#circ-riassumi { margin-top: 10px; }
+.circolare-membri { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; padding: 10px 0; border-top: 1px solid var(--bordo); }
+
+@media print {
+  body { background: #fff; color: #000; }
+  .hero, footer, .toolbar, .no-stampa, #login { display: none !important; }
+  .card { border: 1px solid #000; break-inside: avoid; backdrop-filter: none; }
+  .card h2::after { background: #000; }
+  .classe-ordini li .chi, .card p.desc { color: #000; }
+}
